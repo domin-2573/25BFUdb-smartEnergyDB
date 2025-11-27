@@ -1,0 +1,72 @@
+-- 1. 全局依赖表：厂区信息表（任务书要求分区域管理，必须关联）
+CREATE TABLE 厂区信息表 (
+    厂区编号 VARCHAR(10) NOT NULL PRIMARY KEY COMMENT '唯一标识厂区（如F001/F002）',
+    厂区名称 VARCHAR(30) NOT NULL COMMENT '厂区名称（真旺厂/豆果厂/A3厂区）',
+    区域描述 VARCHAR(50) COMMENT '厂区具体位置描述'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. 核心表1：能耗计量设备信息表（补充厂区关联+索引）
+CREATE TABLE 能耗计量设备信息 (
+    设备编号 VARCHAR(20) NOT NULL PRIMARY KEY COMMENT '唯一标识计量设备（如EM001）',
+    能源类型 VARCHAR(10) NOT NULL CHECK (能源类型 IN ('水', '蒸汽', '天然气')) COMMENT '能源种类',
+    安装位置 VARCHAR(50) NOT NULL COMMENT '设备安装位置（如VOCS下面/糕饼一厂东北角）',
+    管径规格 VARCHAR(10) COMMENT '管径规格（如DN25/DN50，非管道类设备可为空）',
+    通讯协议 VARCHAR(10) NOT NULL CHECK (通讯协议 IN ('RS485', 'Lora')) COMMENT '数据传输协议',
+    运行状态 VARCHAR(10) NOT NULL CHECK (运行状态 IN ('正常', '故障', '离线')) COMMENT '设备状态（补充离线状态，贴合任务书）',
+    校准周期 INT NOT NULL CHECK (校准周期 BETWEEN 6 AND 24) COMMENT '校准周期（月，国标最低6个月）',
+    生产厂家 VARCHAR(30) COMMENT '设备生产企业',
+    厂区编号 VARCHAR(10) NOT NULL COMMENT '归属厂区',
+    FOREIGN KEY (厂区编号) REFERENCES 厂区信息表(厂区编号) ON DELETE CASCADE, -- 厂区删除时级联删除设备
+    INDEX idx_厂区编号_能源类型 (厂区编号, 能源类型) -- 优化按厂区+能源类型查询
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. 核心表2：能耗监测数据表（补充核实状态+类型绑定+索引）
+CREATE TABLE 能耗监测数据 (
+    数据编号 VARCHAR(20) NOT NULL PRIMARY KEY COMMENT '唯一标识监测数据（如D001）',
+    设备编号 VARCHAR(20) NOT NULL COMMENT '关联计量设备',
+    所属厂区编号 VARCHAR(10) NOT NULL COMMENT '归属厂区（冗余字段，优化查询）',
+    能源类型 VARCHAR(10) NOT NULL CHECK (能源类型 IN ('水', '蒸汽', '天然气')) COMMENT '能源种类（与设备表一致）',
+    采集时间 DATETIME NOT NULL COMMENT '数据采集时间（分钟级/小时级）',
+    能耗值 DECIMAL(10, 2) NOT NULL CHECK (能耗值 >= 0) COMMENT '能耗数值（水/天然气：m³；蒸汽：t）',
+    单位 VARCHAR(5) NOT NULL COMMENT '能耗单位',
+    数据质量 VARCHAR(5) NOT NULL CHECK (数据质量 IN ('优', '良', '中', '差')) COMMENT '数据可靠性',
+    核实状态 VARCHAR(10) NOT NULL DEFAULT '已核实' COMMENT '数据核实状态',
+    -- 约束1：单位与能源类型强绑定（水/天然气→m³，蒸汽→t）
+    CHECK (
+        (能源类型 = '水' AND 单位 = 'm³') 
+        OR (能源类型 = '蒸汽' AND 单位 = 't') 
+        OR (能源类型 = '天然气' AND 单位 = 'm³')
+    ),
+    -- 约束2：数据质量为中/差时，自动标记待核实
+    CHECK (
+        (数据质量 IN ('优', '良') AND 核实状态 = '已核实')
+        OR (数据质量 IN ('中', '差') AND 核实状态 = '待核实')
+    ),
+    FOREIGN KEY (设备编号) REFERENCES 能耗计量设备信息(设备编号) ON DELETE CASCADE,
+    FOREIGN KEY (所属厂区编号) REFERENCES 厂区信息表(厂区编号) ON DELETE CASCADE,
+    -- 索引：优化按设备+时间+厂区查询（高频场景）
+    INDEX idx_设备编号_采集时间 (设备编号, 采集时间),
+    INDEX idx_厂区编号_能源类型 (所属厂区编号, 能源类型)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 4. 核心表3：峰谷能耗数据表（补充总能耗校验+索引+成本逻辑）
+CREATE TABLE 峰谷能耗数据 (
+    记录编号 VARCHAR(20) NOT NULL PRIMARY KEY COMMENT '唯一标识峰谷统计数据（如P001）',
+    能源类型 VARCHAR(10) NOT NULL CHECK (能源类型 IN ('水', '蒸汽', '天然气')) COMMENT '能源种类',
+    厂区编号 VARCHAR(10) NOT NULL COMMENT '归属厂区',
+    统计日期 DATE NOT NULL COMMENT '按日统计日期',
+    尖峰时段能耗 DECIMAL(10, 2) NOT NULL CHECK (尖峰时段能耗 >= 0) COMMENT '尖峰时段能耗（10:00-12:00/16:00-18:00）',
+    高峰时段能耗 DECIMAL(10, 2) NOT NULL CHECK (高峰时段能耗 >= 0) COMMENT '高峰时段能耗（8:00-10:00等）',
+    平段能耗 DECIMAL(10, 2) NOT NULL CHECK (平段能耗 >= 0) COMMENT '平段能耗（6:00-8:00等）',
+    低谷时段能耗 DECIMAL(10, 2) NOT NULL CHECK (低谷时段能耗 >= 0) COMMENT '低谷时段能耗（00:00-6:00）',
+    总能耗 DECIMAL(10, 2) NOT NULL CHECK (总能耗 >= 0) COMMENT '总能耗=尖峰+高峰+平段+低谷',
+    峰谷电价 DECIMAL(6, 4) COMMENT '峰谷电价（仅天然气/电适用，水/蒸汽为NULL）',
+    能源单价 DECIMAL(8, 2) NOT NULL COMMENT '能源单价（水：0.5元/m³；蒸汽：200元/t；天然气：3.2元/m³）',
+    能耗成本 DECIMAL(12, 2) NOT NULL CHECK (能耗成本 >= 0) COMMENT '总能耗×对应能源单价',
+    -- 约束：总能耗必须等于各时段能耗之和（避免数据错误）
+    CHECK (总能耗 = 尖峰时段能耗 + 高峰时段能耗 + 平段能耗 + 低谷时段能耗),
+    FOREIGN KEY (厂区编号) REFERENCES 厂区信息表(厂区编号) ON DELETE CASCADE,
+    -- 索引：优化按厂区+日期+能源类型统计（高频场景）
+    INDEX idx_厂区编号_统计日期 (厂区编号, 统计日期),
+    INDEX idx_能源类型_统计日期 (能源类型, 统计日期)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
