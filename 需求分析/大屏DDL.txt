@@ -1,0 +1,84 @@
+/* ============================= */
+/*       1. 大屏展示配置表       */
+/* ============================= */
+CREATE TABLE `大屏展示配置` (
+    `配置编号` VARCHAR(15) NOT NULL COMMENT '主键，如 DP001、DP002',
+    `展示模块` VARCHAR(50) NOT NULL COMMENT '能源总览 / 光伏总览 / 配电网运行状态 / 告警统计',
+    `数据刷新频率` INT NOT NULL COMMENT '单位：分钟',
+    `展示字段` TEXT NOT NULL COMMENT '展示字段列表，如 总能耗 / 光伏发电量 / 高等级告警数',
+    `排序规则` VARCHAR(50) NULL COMMENT '按时间降序 / 按能耗降序 等',
+    `权限等级` VARCHAR(50) NOT NULL COMMENT '管理员 / 能源管理员 / 运维人员',
+    PRIMARY KEY (`配置编号`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+/* ============================= */
+/*         2. 实时汇总数据表     */
+/* ============================= */
+CREATE TABLE `实时汇总数据` (
+    `汇总编号` VARCHAR(15) NOT NULL COMMENT '主键 001、002...',
+    `统计时间` DATETIME NOT NULL,
+    `总用电量` DECIMAL(18,2) NOT NULL COMMENT 'kWh',
+    `总用水量` DECIMAL(18,2) NOT NULL COMMENT 'm³',
+    `总蒸汽消耗量` DECIMAL(18,2) NOT NULL COMMENT 't',
+    `总天然气消耗量` DECIMAL(18,2) NOT NULL COMMENT 'm³',
+    `光伏总发电量` DECIMAL(18,2) NOT NULL COMMENT 'kWh',
+    `光伏自用电量` DECIMAL(18,2) NOT NULL COMMENT 'kWh',
+    `总告警次数` INT NOT NULL,
+    `高等级告警数` INT NOT NULL,
+    `中等级告警数` INT NOT NULL,
+    `低等级告警数` INT NOT NULL,
+    PRIMARY KEY (`汇总编号`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+/* ============================= */
+/*        3. 历史趋势数据表      */
+/* ============================= */
+CREATE TABLE `历史趋势数据` (
+    `趋势编号` VARCHAR(15) NOT NULL COMMENT '主键',
+    `能源类型` VARCHAR(20) NOT NULL COMMENT '电 / 水 / 蒸汽 / 天然气 / 光伏',
+    `统计周期` VARCHAR(20) NOT NULL COMMENT '日 / 周 / 月',
+    `统计时间` DATE NOT NULL,
+    `数值` DECIMAL(18,2) NOT NULL COMMENT '能耗/发电量 数值',
+    `同比增长率` DECIMAL(8,2) NULL COMMENT '百分比 %',
+    `环比增长率` DECIMAL(8,2) NULL COMMENT '百分比 %',
+    `行业均值` VARCHAR(20) NULL,
+    PRIMARY KEY (`趋势编号`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+/* ========================================== */
+/* 4. 大屏展示配置 —— 实时汇总数据 关联表 (M:N) */
+/* ========================================== */
+CREATE TABLE `大屏配置_实时汇总关联` (
+    `配置编号` VARCHAR(15) NOT NULL,
+    `汇总编号` VARCHAR(15) NOT NULL,
+    PRIMARY KEY (`配置编号`, `汇总编号`),
+    CONSTRAINT `fk_dp_rtd_dp`
+        FOREIGN KEY (`配置编号`) REFERENCES `大屏展示配置`(`配置编号`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_dp_rtd_rtd`
+        FOREIGN KEY (`汇总编号`) REFERENCES `实时汇总数据`(`汇总编号`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+/* ========================================== */
+/* 5. 大屏展示配置 —— 历史趋势数据 关联表 (M:N) */
+/* ========================================== */
+CREATE TABLE `大屏配置_历史趋势关联` (
+    `配置编号` VARCHAR(15) NOT NULL,
+    `趋势编号` VARCHAR(15) NOT NULL,
+    PRIMARY KEY (`配置编号`, `趋势编号`),
+    CONSTRAINT `fk_dp_ht_dp`
+        FOREIGN KEY (`配置编号`) REFERENCES `大屏展示配置`(`配置编号`)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_dp_ht_ht`
+        FOREIGN KEY (`趋势编号`) REFERENCES `历史趋势数据`(`趋势编号`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

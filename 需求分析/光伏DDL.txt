@@ -1,0 +1,85 @@
+-- 创建数据库（若未创建）
+CREATE DATABASE IF NOT EXISTS smartEnergyDB 
+COLLATE Chinese_PRC_CI_AS; -- 适配中文排序规则
+
+-- 切换至目标数据库
+USE smartEnergyDB;
+GO
+
+-- 1. 光伏设备信息表（中文表名）
+CREATE TABLE [dbo].[光伏设备信息表] (
+    [设备编号] VARCHAR(20) NOT NULL COMMENT '主键，设备唯一标识（如 SD-PV-001、SD-HB-001）',
+    [设备类型] VARCHAR(20) NOT NULL COMMENT '设备类型，枚举值：逆变器/汇流箱（可扩展其他光伏设备）',
+    [安装位置] VARCHAR(50) NOT NULL COMMENT '设备安装位置（如屋顶区域编号/园区片区）',
+    [装机容量（kWp）] DECIMAL(10,2) NOT NULL COMMENT '设备装机容量，单位kWp（汇流箱按等效组件功率计算）',
+    [投运时间] DATE NOT NULL COMMENT '设备投运日期（格式：YYYY-MM-DD）',
+    [校准周期（月）] INT NOT NULL COMMENT '设备校准周期，单位：月（常规12个月，特殊环境6个月）',
+    [运行状态] VARCHAR(10) NOT NULL COMMENT '设备运行状态，枚举值：正常/故障/离线',
+    [通信协议] VARCHAR(20) NOT NULL COMMENT '设备通信协议（如 RS485/Lora/以太网）',
+    CONSTRAINT [PK_光伏设备信息表_设备编号] PRIMARY KEY CLUSTERED ([设备编号] ASC)
+) ON [PRIMARY];
+GO
+
+-- 添加表注释（SQL Server 专用语法）
+EXEC sys.sp_addextendedproperty 
+@name = N'MS_Description', 
+@value = N'光伏设备基础信息与运行状态表', 
+@level0type = N'SCHEMA', @level0name = N'dbo',
+@level1type = N'TABLE', @level1name = N'光伏设备信息表';
+GO
+
+-- 2. 光伏发电数据表（中文表名）
+CREATE TABLE [dbo].[光伏发电数据表] (
+    [数据编号] VARCHAR(30) NOT NULL COMMENT '主键，发电数据唯一标识（如 SD-GF-20250620-001）',
+    [设备编号] VARCHAR(20) NOT NULL COMMENT '外键，关联光伏设备信息表的设备编号',
+    [并网点编号] VARCHAR(20) NOT NULL COMMENT '并网点唯一标识（如 蒙电-商都-001）',
+    [采集时间] DATETIME NOT NULL COMMENT '数据采集时间（格式：YYYY-MM-DD HH:MM:SS）',
+    [发电量（kWh）] DECIMAL(18,2) NOT NULL COMMENT '对应时段实际发电量，单位kWh',
+    [上网电量（kWh）] DECIMAL(18,2) NOT NULL COMMENT '输送至电网的电量，单位kWh',
+    [自用电量（kWh）] DECIMAL(18,2) NOT NULL COMMENT '设备自身消耗的电量，单位kWh',
+    [逆变器效率（%）] DECIMAL(5,2) NOT NULL COMMENT '逆变器能量转换效率，单位%',
+    [汇流箱组串电压（V）] DECIMAL(10,2) NOT NULL COMMENT '汇流箱单串组件输出电压，单位V',
+    [组串电流（A）] DECIMAL(10,2) NOT NULL COMMENT '汇流箱单串组件输出电流，单位A',
+    CONSTRAINT [PK_光伏发电数据表_数据编号] PRIMARY KEY CLUSTERED ([数据编号] ASC),
+    -- 外键约束（SQL Server 格式）
+    CONSTRAINT [FK_光伏发电数据表_光伏设备信息表] FOREIGN KEY ([设备编号])
+        REFERENCES [dbo].[光伏设备信息表] ([设备编号])
+        ON DELETE RESTRICT -- 禁止删除已关联发电数据的设备
+        ON UPDATE CASCADE -- 设备编号更新时同步联动
+) ON [PRIMARY];
+GO
+
+-- 添加表注释
+EXEC sys.sp_addextendedproperty 
+@name = N'MS_Description', 
+@value = N'光伏设备实时运行发电数据、电气参数表', 
+@level0type = N'SCHEMA', @level0name = N'dbo',
+@level1type = N'TABLE', @level1name = N'光伏发电数据表';
+GO
+
+-- 3. 光伏预测数据表（中文表名）
+CREATE TABLE [dbo].[光伏预测数据表] (
+    [预测编号] VARCHAR(30) NOT NULL COMMENT '主键，预测数据唯一标识（如 SD-YC-20250621-001）',
+    [并网点编号] VARCHAR(20) NOT NULL COMMENT '并网点唯一标识（与光伏发电数据表一致）',
+    [预测日期] DATE NOT NULL COMMENT '预测对应的日期（格式：YYYY-MM-DD）',
+    [预测时段] VARCHAR(20) NOT NULL COMMENT '预测时段（如 08:00-09:00）',
+    [预测发电量（kWh）] DECIMAL(18,2) NOT NULL COMMENT '预测的时段发电量，单位kWh',
+    [实际发电量（kWh）] DECIMAL(18,2) NOT NULL COMMENT '对应时段实际发电量（预估数据后续可更新）',
+    [偏差率（%）] DECIMAL(8,2) NOT NULL COMMENT '预测偏差率=（预测值-实际值）/实际值×100%，单位%',
+    [预测模型版本] VARCHAR(20) NOT NULL COMMENT '预测使用的算法模型版本（如 CNN-XGBoost V2.1）',
+    CONSTRAINT [PK_光伏预测数据表_预测编号] PRIMARY KEY CLUSTERED ([预测编号] ASC)
+) ON [PRIMARY];
+GO
+
+-- 添加联合索引（优化查询性能，适配1:1匹配场景）
+CREATE NONCLUSTERED INDEX [IX_光伏预测数据表_并网点日期时段]
+ON [dbo].[光伏预测数据表] ([并网点编号] ASC, [预测日期] ASC, [预测时段] ASC);
+GO
+
+-- 添加表注释
+EXEC sys.sp_addextendedproperty 
+@name = N'MS_Description', 
+@value = N'光伏发电量预测与实际结果对比分析表', 
+@level0type = N'SCHEMA', @level0name = N'dbo',
+@level1type = N'TABLE', @level1name = N'光伏预测数据表';
+GO
