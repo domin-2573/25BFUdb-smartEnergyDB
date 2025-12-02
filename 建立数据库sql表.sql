@@ -92,7 +92,6 @@ CREATE TABLE `光伏预测数据` (
     `实际发电量` DECIMAL(18,2) NOT NULL,
     `偏差率` DECIMAL(8,2) NOT NULL,
     `预测模型版本` VARCHAR(20) NOT NULL,
-    FOREIGN KEY (`并网点编号`) REFERENCES `光伏发电数据`(`并网点编号`)
 );
 
 ############################################################
