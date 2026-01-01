@@ -119,7 +119,7 @@ public class EnergyServiceImpl implements IEnergyService {
         dashboard.put("highAlarmCount", highAlarms.size());
         dashboard.put("pvDeviceCount", pvSummary.get("totalDevices"));
         dashboard.put("pvTotalCapacity", pvSummary.get("totalCapacity"));
-        dashboard.put("unhandledAlarms", getAlarmsByStatus("unhandled").size());
+        dashboard.put("unhandledAlarms", getAlarmsByStatus("未处理").size());
         
         return dashboard;
     }

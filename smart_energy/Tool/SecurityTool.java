@@ -19,7 +19,7 @@ public class SecurityTool {
             
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("加密算法不可用", e);
+            throw new RuntimeException("Encryption algorithm not found", e);
         }
     }
     
