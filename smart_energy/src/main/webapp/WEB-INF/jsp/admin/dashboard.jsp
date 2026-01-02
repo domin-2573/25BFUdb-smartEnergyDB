@@ -132,8 +132,28 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/SmartEnergy/alarm/list">
+                        <a class="nav-link" href="/SmartEnergy/alarm/manage">
                             <i class="bi bi-bell"></i> 告警
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SmartEnergy/energy/pv">
+                            <i class="bi bi-sun"></i> 光伏
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SmartEnergy/energy/circuit">
+                            <i class="bi bi-lightning-charge"></i> 回路监测
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SmartEnergy/admin/users">
+                            <i class="bi bi-people"></i> 用户管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/SmartEnergy/dashboard/realtime">
+                            <i class="bi bi-tv"></i> 实时大屏
                         </a>
                     </li>
                     <li class="nav-item">
@@ -216,8 +236,20 @@
                         <a href="/SmartEnergy/substation/list" class="btn btn-outline-success" target="_blank">
                             <i class="bi bi-building"></i> 配电房列表
                         </a>
-                        <a href="/SmartEnergy/alarm/list" class="btn btn-outline-danger" target="_blank">
-                            <i class="bi bi-bell"></i> 告警列表
+                        <a href="/SmartEnergy/alarm/manage" class="btn btn-outline-danger">
+                            <i class="bi bi-bell"></i> 告警管理
+                        </a>
+                        <a href="/SmartEnergy/energy/pv" class="btn btn-outline-warning">
+                            <i class="bi bi-sun"></i> 光伏管理
+                        </a>
+                        <a href="/SmartEnergy/maintenance/workorder/list" class="btn btn-outline-info">
+                            <i class="bi bi-tools"></i> 运维工单
+                        </a>
+                        <a href="/SmartEnergy/dashboard/realtime" class="btn btn-outline-warning">
+                            <i class="bi bi-tv"></i> 实时监控大屏
+                        </a>
+                        <a href="/SmartEnergy/dashboard/trend" class="btn btn-outline-success">
+                            <i class="bi bi-graph-up"></i> 历史趋势分析
                         </a>
                     </div>
                 </div>

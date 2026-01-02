@@ -111,11 +111,27 @@ CREATE TABLE IF NOT EXISTS `光伏设备信息表` (
 -- 创建索引
 CREATE INDEX `idx_运行状态_光伏` ON `光伏设备信息表`(`运行状态`);
 
+-- 并网点信息表
+CREATE TABLE IF NOT EXISTS `并网点信息表` (
+    `并网点编号` VARCHAR(20) PRIMARY KEY COMMENT '唯一标识并网点，如BGD-001',
+    `并网点名称` VARCHAR(50) NOT NULL COMMENT '并网点名称，如主并网点1',
+    `位置描述` VARCHAR(100) NOT NULL COMMENT '具体位置描述',
+    `并网电压等级` VARCHAR(20) NOT NULL COMMENT '如10kV、35kV',
+    `并网容量kW` DECIMAL(10,2) NOT NULL COMMENT '并网容量，单位kW',
+    `投运时间` DATE NOT NULL COMMENT '格式：YYYY-MM-DD',
+    `运行状态` VARCHAR(10) NOT NULL DEFAULT '正常' COMMENT '正常、故障、维护',
+    `创建时间` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `更新时间` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='并网点信息表';
+
+-- 创建索引
+CREATE INDEX `idx_运行状态_并网点` ON `并网点信息表`(`运行状态`);
+
 -- 光伏发电数据表
 CREATE TABLE IF NOT EXISTS `光伏发电数据表` (
     `数据编号` VARCHAR(20) PRIMARY KEY COMMENT '唯一标识单条发电数据',
     `设备编号` VARCHAR(20) NOT NULL COMMENT '关联光伏设备信息表',
-    `并网点编号` VARCHAR(20) NOT NULL COMMENT '关联并网点',
+    `并网点编号` VARCHAR(20) NOT NULL COMMENT '关联并网点信息表',
     `采集时间` DATETIME NOT NULL COMMENT '格式：YYYY-MM-DD HH:MM:SS',
     `发电量kWh` DECIMAL(12,2) NOT NULL CHECK (`发电量kWh` >= 0) COMMENT '≥0',
     `上网电量kWh` DECIMAL(12,2) NOT NULL CHECK (`上网电量kWh` >= 0) COMMENT '≥0',
@@ -123,7 +139,8 @@ CREATE TABLE IF NOT EXISTS `光伏发电数据表` (
     `逆变器效率` DECIMAL(5,2) NOT NULL COMMENT '0-100%，低于85%标记为设备异常',
     `汇流箱组串电压V` DECIMAL(8,2) NULL COMMENT '允许空',
     `组串电流A` DECIMAL(8,2) NULL COMMENT '允许空',
-    FOREIGN KEY (`设备编号`) REFERENCES `光伏设备信息表`(`设备编号`) ON DELETE CASCADE
+    FOREIGN KEY (`设备编号`) REFERENCES `光伏设备信息表`(`设备编号`) ON DELETE CASCADE,
+    FOREIGN KEY (`并网点编号`) REFERENCES `并网点信息表`(`并网点编号`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='光伏发电数据表';
 
 -- 创建索引
@@ -134,13 +151,14 @@ CREATE INDEX `idx_并网点编号` ON `光伏发电数据表`(`并网点编号`)
 -- 光伏预测数据表
 CREATE TABLE IF NOT EXISTS `光伏预测数据表` (
     `预测编号` VARCHAR(20) PRIMARY KEY COMMENT '唯一标识预测记录',
-    `并网点编号` VARCHAR(20) NOT NULL COMMENT '关联并网点',
+    `并网点编号` VARCHAR(20) NOT NULL COMMENT '关联并网点信息表',
     `预测日期` DATE NOT NULL COMMENT '格式：YYYY-MM-DD',
     `预测时段` VARCHAR(20) NOT NULL COMMENT '如08:00-09:00',
     `预测发电量kWh` DECIMAL(12,2) NOT NULL CHECK (`预测发电量kWh` >= 0) COMMENT '≥0',
     `实际发电量kWh` DECIMAL(12,2) NULL COMMENT '允许空，实际数据采集后更新',
     `偏差率` DECIMAL(5,2) NULL COMMENT '允许空，超15%触发预测模型优化提醒',
-    `预测模型版本` VARCHAR(20) NULL COMMENT '允许空'
+    `预测模型版本` VARCHAR(20) NULL COMMENT '允许空',
+    FOREIGN KEY (`并网点编号`) REFERENCES `并网点信息表`(`并网点编号`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='光伏预测数据表';
 
 -- 创建索引
@@ -176,6 +194,7 @@ CREATE TABLE IF NOT EXISTS `能耗监测数据表` (
     `能耗值` DECIMAL(10,2) NOT NULL CHECK (`能耗值` >= 0) COMMENT '水：m³；蒸汽：t；天然气：m³，≥0',
     `单位` VARCHAR(5) NOT NULL COMMENT 'm³、t',
     `数据质量` VARCHAR(5) NOT NULL COMMENT '优、良、中、差',
+    `核实状态` VARCHAR(10) DEFAULT '已核实' COMMENT '已核实、待核实（数据质量为中/差时标记）',
     `所属厂区编号` VARCHAR(10) NOT NULL COMMENT '如真旺厂、豆果厂、A3厂区',
     FOREIGN KEY (`设备编号`) REFERENCES `能耗计量设备信息表`(`设备编号`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='能耗监测数据表';
@@ -185,6 +204,7 @@ CREATE INDEX `idx_设备编号_能耗` ON `能耗监测数据表`(`设备编号`
 CREATE INDEX `idx_所属厂区编号` ON `能耗监测数据表`(`所属厂区编号`);
 CREATE INDEX `idx_采集时间_能耗` ON `能耗监测数据表`(`采集时间`);
 CREATE INDEX `idx_数据质量` ON `能耗监测数据表`(`数据质量`);
+CREATE INDEX `idx_核实状态` ON `能耗监测数据表`(`核实状态`);
 
 -- 峰谷能耗数据表
 CREATE TABLE IF NOT EXISTS `峰谷能耗数据表` (
@@ -265,6 +285,22 @@ CREATE TABLE IF NOT EXISTS `设备台账数据表` (
 -- 创建索引
 CREATE INDEX `idx_设备类型` ON `设备台账数据表`(`设备类型`);
 CREATE INDEX `idx_报废状态` ON `设备台账数据表`(`报废状态`);
+
+-- 执法人员信息表
+CREATE TABLE IF NOT EXISTS `执法人员信息表` (
+    `执法ID` VARCHAR(20) PRIMARY KEY COMMENT '唯一标识执法人员，如ZF-001',
+    `姓名` VARCHAR(50) NOT NULL COMMENT '执法人员姓名',
+    `所属部门` VARCHAR(50) NOT NULL COMMENT '所属部门名称',
+    `执法权限` VARCHAR(100) NOT NULL COMMENT '执法权限描述，如设备检查、数据审核',
+    `联系方式` VARCHAR(20) NOT NULL COMMENT '手机号或固定电话',
+    `执法设备编号` VARCHAR(20) NULL COMMENT '关联执法设备编号，允许空',
+    `创建时间` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `更新时间` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='执法人员信息表';
+
+-- 创建索引
+CREATE INDEX `idx_所属部门` ON `执法人员信息表`(`所属部门`);
+CREATE INDEX `idx_执法权限` ON `执法人员信息表`(`执法权限`);
 
 -- ============================================
 -- 6. 大屏数据展示业务线
