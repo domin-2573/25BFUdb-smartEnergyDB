@@ -1,310 +1,100 @@
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
+-- 一、配电房信息表索引
+ALTER TABLE `配电房信息表` ADD INDEX `idx_负责人ID` (`负责人ID`);
+ALTER TABLE `配电房信息表` ADD INDEX `idx_投运时间` (`投运时间`);
 
-############################################################
-# 一、配电网监测业务
-############################################################
+-- 二、回路监测数据表索引
+ALTER TABLE `回路监测数据表` ADD INDEX `idx_配电房编号` (`配电房编号`);
+ALTER TABLE `回路监测数据表` ADD INDEX `idx_采集时间` (`采集时间`);
+ALTER TABLE `回路监测数据表` ADD INDEX `idx_配电房回路` (`配电房编号`, `回路编号`);
+ALTER TABLE `回路监测数据表` ADD INDEX `idx_时间开关状态` (`采集时间`, `开关状态`);
+ALTER TABLE `回路监测数据表` ADD INDEX `idx_回路采集时间` (`回路编号`, `采集时间`);
 
-# 1. 配电房信息表
-CREATE TABLE `配电房信息表` (
-    `配电房编号` VARCHAR(15) PRIMARY KEY,
-    `名称` VARCHAR(20) NOT NULL,
-    `位置描述` VARCHAR(50) NOT NULL,
-    `电压等级` VARCHAR(10) NOT NULL,
-    `变压器数量` TINYINT NOT NULL CHECK (`变压器数量` >= 1),
-    `投运时间` DATE NOT NULL,
-    `负责人ID` VARCHAR(20) NOT NULL,
-    `联系方式` VARCHAR(20) NOT NULL,
-    INDEX `idx_负责人ID` (`负责人ID`),
-    INDEX `idx_投运时间` (`投运时间`)
-);
+-- 三、变压器监测数据表索引
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_配电房编号` (`配电房编号`);
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_采集时间` (`采集时间`);
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_变压器编号` (`变压器编号`);
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_运行状态` (`运行状态`);
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_配电房变压器` (`配电房编号`, `变压器编号`);
+ALTER TABLE `变压器监测数据表` ADD INDEX `idx_时间运行状态` (`采集时间`, `运行状态`);
 
-# 2. 回路监测数据表
-CREATE TABLE `回路监测数据表` (
-    `数据编号` VARCHAR(20) PRIMARY KEY,
-    `配电房编号` VARCHAR(15) NOT NULL,
-    `回路编号` VARCHAR(10) NOT NULL,
-    `采集时间` DATETIME NOT NULL,
-    `电压kV` DECIMAL(5,2) NOT NULL,
-    `电流A` DECIMAL(8,2) NOT NULL,
-    `有功功率kW` DECIMAL(10,2) NOT NULL,
-    `无功功率kVar` DECIMAL(10,2) NOT NULL,
-    `功率因数` DECIMAL(4,2) NOT NULL CHECK (`功率因数` >= 0.85 AND `功率因数` <= 1.00),
-    `正向有功电量kWh` DECIMAL(12,2) NOT NULL,
-    `反向有功电量kWh` DECIMAL(12,2) NOT NULL,
-    `开关状态` VARCHAR(5) NOT NULL CHECK (`开关状态` IN ('分闸','合闸')),
-    `电缆头温度` DECIMAL(5,1) NOT NULL,
-    `电容器温度` DECIMAL(5,1) NOT NULL,
-    FOREIGN KEY (`配电房编号`) REFERENCES `配电房信息表`(`配电房编号`),
-    INDEX `idx_配电房编号` (`配电房编号`),
-    INDEX `idx_采集时间` (`采集时间`),
-    INDEX `idx_配电房回路` (`配电房编号`, `回路编号`),
-    INDEX `idx_时间开关状态` (`采集时间`, `开关状态`),
-    INDEX `idx_回路采集时间` (`回路编号`, `采集时间`)
-);
+-- 四、光伏设备信息索引
+ALTER TABLE `光伏设备信息` ADD INDEX `idx_运行状态` (`运行状态`);
+ALTER TABLE `光伏设备信息` ADD INDEX `idx_投运时间` (`投运时间`);
+ALTER TABLE `光伏设备信息` ADD INDEX `idx_安装位置` (`安装位置`);
+ALTER TABLE `光伏设备信息` ADD INDEX `idx_设备类型` (`设备类型`);
 
-# 3. 变压器监测数据表
-CREATE TABLE `变压器监测数据表` (
-    `数据编号` VARCHAR(20) PRIMARY KEY,
-    `配电房编号` VARCHAR(15) NOT NULL,
-    `变压器编号` VARCHAR(10) NOT NULL,
-    `采集时间` DATETIME NOT NULL,
-    `负载率` DECIMAL(5,2) NOT NULL,
-    `绕组温度` DECIMAL(5,1) NOT NULL,
-    `铁芯温度` DECIMAL(5,1) NOT NULL,
-    `环境温度` DECIMAL(5,1) NOT NULL,
-    `环境湿度` DECIMAL(5,1) NOT NULL,
-    `运行状态` VARCHAR(5) NOT NULL CHECK (`运行状态` IN ('正常','异常')),
-    FOREIGN KEY (`配电房编号`) REFERENCES `配电房信息表`(`配电房编号`),
-    INDEX `idx_配电房编号` (`配电房编号`),
-    INDEX `idx_采集时间` (`采集时间`),
-    INDEX `idx_变压器编号` (`变压器编号`),
-    INDEX `idx_运行状态` (`运行状态`),
-    INDEX `idx_配电房变压器` (`配电房编号`, `变压器编号`),
-    INDEX `idx_时间运行状态` (`采集时间`, `运行状态`)
-);
+-- 五、光伏发电数据索引
+ALTER TABLE `光伏发电数据` ADD INDEX `idx_设备编号` (`设备编号`);
+ALTER TABLE `光伏发电数据` ADD INDEX `idx_采集时间` (`采集时间`);
+ALTER TABLE `光伏发电数据` ADD INDEX `idx_并网点编号` (`并网点编号`);
+ALTER TABLE `光伏发电数据` ADD INDEX `idx_设备采集时间` (`设备编号`, `采集时间`);
+ALTER TABLE `光伏发电数据` ADD INDEX `idx_并网点时间` (`并网点编号`, `采集时间`);
 
-############################################################
-# 二、光伏业务
-############################################################
+-- 六、光伏预测数据索引
+ALTER TABLE `光伏预测数据` ADD INDEX `idx_并网点编号` (`并网点编号`);
+ALTER TABLE `光伏预测数据` ADD INDEX `idx_预测日期` (`预测日期`);
+ALTER TABLE `光伏预测数据` ADD INDEX `idx_并网点预测日期` (`并网点编号`, `预测日期`);
+ALTER TABLE `光伏预测数据` ADD INDEX `idx_预测时段` (`预测时段`);
 
-# 1. 光伏设备信息
-CREATE TABLE `光伏设备信息` (
-    `设备编号` VARCHAR(20) PRIMARY KEY,
-    `设备类型` VARCHAR(50) NOT NULL,
-    `安装位置` VARCHAR(50) NOT NULL,
-    `装机容量` VARCHAR(50) NOT NULL,
-    `投运时间` DATE NOT NULL,
-    `校准周期` INT NOT NULL,
-    `运行状态` VARCHAR(10) NOT NULL CHECK (`运行状态` IN ('正常','故障','离线')),
-    `通信协议` VARCHAR(20) NOT NULL,
-    INDEX `idx_运行状态` (`运行状态`),
-    INDEX `idx_投运时间` (`投运时间`),
-    INDEX `idx_安装位置` (`安装位置`),
-    INDEX `idx_设备类型` (`设备类型`)
-);
+-- 七、能耗计量设备信息索引
+ALTER TABLE `能耗计量设备信息` ADD INDEX `idx_能源类型` (`能源类型`);
+ALTER TABLE `能耗计量设备信息` ADD INDEX `idx_运行状态` (`运行状态`);
+ALTER TABLE `能耗计量设备信息` ADD INDEX `idx_安装位置` (`安装位置`);
+ALTER TABLE `能耗计量设备信息` ADD INDEX `idx_能源安装位置` (`能源类型`, `安装位置`);
 
-# 2. 光伏发电数据
-CREATE TABLE `光伏发电数据` (
-    `数据编号` VARCHAR(30) PRIMARY KEY,
-    `设备编号` VARCHAR(20) NOT NULL,
-    `并网点编号` VARCHAR(20) NOT NULL,
-    `采集时间` DATETIME NOT NULL,
-    `发电量` DECIMAL(18,2) NOT NULL,
-    `上网电量` DECIMAL(18,2) NOT NULL,
-    `自用电量` DECIMAL(18,2) NOT NULL,
-    `汇流箱组串电压V` DECIMAL(10,2) NOT NULL,
-    `组串电流A` DECIMAL(10,2) NOT NULL,
-    `逆变器效率` DECIMAL(5,2) NOT NULL,
-    FOREIGN KEY (`设备编号`) REFERENCES `光伏设备信息`(`设备编号`),
-    INDEX `idx_设备编号` (`设备编号`),
-    INDEX `idx_采集时间` (`采集时间`),
-    INDEX `idx_并网点编号` (`并网点编号`),
-    INDEX `idx_设备采集时间` (`设备编号`, `采集时间`),
-    INDEX `idx_并网点时间` (`并网点编号`, `采集时间`)
-);
+-- 八、能耗监测数据索引
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_设备编号` (`设备编号`);
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_采集时间` (`采集时间`);
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_所属厂区编号` (`所属厂区编号`);
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_设备采集时间` (`设备编号`, `采集时间`);
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_厂区采集时间` (`所属厂区编号`, `采集时间`);
+ALTER TABLE `能耗监测数据` ADD INDEX `idx_数据质量` (`数据质量`);
 
-# 3. 光伏预测数据
-CREATE TABLE `光伏预测数据` (
-    `预测编号` VARCHAR(30) PRIMARY KEY,
-    `并网点编号` VARCHAR(20) NOT NULL,
-    `预测日期` DATE NOT NULL,
-    `预测时段` VARCHAR(20) NOT NULL,
-    `预测发电量` DECIMAL(18,2) NOT NULL,
-    `实际发电量` DECIMAL(18,2) NOT NULL,
-    `偏差率` DECIMAL(8,2) NOT NULL,
-    `预测模型版本` VARCHAR(20) NOT NULL,
-    INDEX `idx_并网点编号` (`并网点编号`),
-    INDEX `idx_预测日期` (`预测日期`),
-    INDEX `idx_并网点预测日期` (`并网点编号`, `预测日期`),
-    INDEX `idx_预测时段` (`预测时段`)
-);
+-- 九、峰谷能耗数据索引
+ALTER TABLE `峰谷能耗数据` ADD INDEX `idx_能源类型` (`能源类型`);
+ALTER TABLE `峰谷能耗数据` ADD INDEX `idx_厂区编号` (`厂区编号`);
+ALTER TABLE `峰谷能耗数据` ADD INDEX `idx_统计日期` (`统计日期`);
+ALTER TABLE `峰谷能耗数据` ADD INDEX `idx_能源厂区日期` (`能源类型`, `厂区编号`, `统计日期`);
+ALTER TABLE `峰谷能耗数据` ADD INDEX `idx_厂区日期` (`厂区编号`, `统计日期`);
 
-############################################################
-# 三、综合能耗管理
-############################################################
+-- 十、告警信息表索引
+ALTER TABLE `告警信息表` ADD INDEX `idx_关联设备编号` (`关联设备编号`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_发生时间` (`发生时间`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_告警等级` (`告警等级`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_处理状态` (`处理状态`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_告警类型` (`告警类型`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_设备时间状态` (`关联设备编号`, `发生时间`, `处理状态`);
+ALTER TABLE `告警信息表` ADD INDEX `idx_时间等级状态` (`发生时间`, `告警等级`, `处理状态`);
 
-# 1. 能耗计量设备信息
-CREATE TABLE `能耗计量设备信息` (
-    `设备编号` VARCHAR(20) PRIMARY KEY,
-    `能源类型` VARCHAR(10) NOT NULL CHECK (`能源类型` IN ('水','蒸汽','天然气')),
-    `安装位置` VARCHAR(50) NOT NULL,
-    `管径规格` VARCHAR(10),
-    `通信协议` VARCHAR(10) NOT NULL,
-    `运行状态` VARCHAR(10) NOT NULL CHECK (`运行状态` IN ('正常','故障')),
-    `校准周期` INT NOT NULL CHECK (`校准周期` >= 3 AND `校准周期` <= 24),
-    `生产厂家` VARCHAR(30),
-    INDEX `idx_能源类型` (`能源类型`),
-    INDEX `idx_运行状态` (`运行状态`),
-    INDEX `idx_安装位置` (`安装位置`),
-    INDEX `idx_能源安装位置` (`能源类型`, `安装位置`)
-);
+-- 十一、运维工单数据索引
+ALTER TABLE `运维工单数据` ADD INDEX `idx_告警编号` (`告警编号`);
+ALTER TABLE `运维工单数据` ADD INDEX `idx_运维人员ID` (`运维人员ID`);
+ALTER TABLE `运维工单数据` ADD INDEX `idx_派单时间` (`派单时间`);
+ALTER TABLE `运维工单数据` ADD INDEX `idx_处理完成时间` (`处理完成时间`);
+ALTER TABLE `运维工单数据` ADD INDEX `idx_复查状态` (`复查状态`);
+ALTER TABLE `运维工单数据` ADD INDEX `idx_人员派单时间` (`运维人员ID`, `派单时间`);
 
-# 2. 能耗监测数据
-CREATE TABLE `能耗监测数据` (
-    `数据编号` VARCHAR(20) PRIMARY KEY,
-    `设备编号` VARCHAR(20) NOT NULL,
-    `采集时间` DATETIME NOT NULL,
-    `能耗值` DECIMAL(10,2) NOT NULL CHECK (`能耗值` >= 0),
-    `单位` VARCHAR(5) NOT NULL CHECK (`单位` IN ('m³','t')),
-    `数据质量` VARCHAR(5) NOT NULL CHECK (`数据质量` IN ('优','良','中','差')),
-    `所属厂区编号` VARCHAR(10) NOT NULL,
-    FOREIGN KEY (`设备编号`) REFERENCES `能耗计量设备信息`(`设备编号`),
-    INDEX `idx_设备编号` (`设备编号`),
-    INDEX `idx_采集时间` (`采集时间`),
-    INDEX `idx_所属厂区编号` (`所属厂区编号`),
-    INDEX `idx_设备采集时间` (`设备编号`, `采集时间`),
-    INDEX `idx_厂区采集时间` (`所属厂区编号`, `采集时间`),
-    INDEX `idx_数据质量` (`数据质量`)
-);
+-- 十二、设备台账数据索引
+ALTER TABLE `设备台账数据` ADD INDEX `idx_设备类型` (`设备类型`);
+ALTER TABLE `设备台账数据` ADD INDEX `idx_安装时间` (`安装时间`);
+ALTER TABLE `设备台账数据` ADD INDEX `idx_报废状态` (`报废状态`);
+ALTER TABLE `设备台账数据` ADD INDEX `idx_设备名称` (`设备名称`);
+ALTER TABLE `设备台账数据` ADD INDEX `idx_类型安装时间` (`设备类型`, `安装时间`);
 
-# 3. 峰谷能耗数据
-CREATE TABLE `峰谷能耗数据` (
-    `记录编号` VARCHAR(20) PRIMARY KEY,
-    `能源类型` VARCHAR(10) NOT NULL CHECK (`能源类型` IN ('水','蒸汽','天然气')),
-    `厂区编号` VARCHAR(10) NOT NULL,
-    `统计日期` DATE NOT NULL,
-    `尖峰时段能耗` DECIMAL(10,2) NOT NULL,
-    `高峰时段能耗` DECIMAL(10,2) NOT NULL,
-    `平段能耗` DECIMAL(10,2) NOT NULL,
-    `低谷时段能耗` DECIMAL(10,2) NOT NULL,
-    `总能耗` DECIMAL(10,2) NOT NULL,
-    `峰谷电价` DECIMAL(6,4) NOT NULL,
-    `能耗成本` DECIMAL(12,2) NOT NULL,
-    INDEX `idx_能源类型` (`能源类型`),
-    INDEX `idx_厂区编号` (`厂区编号`),
-    INDEX `idx_统计日期` (`统计日期`),
-    INDEX `idx_能源厂区日期` (`能源类型`, `厂区编号`, `统计日期`),
-    INDEX `idx_厂区日期` (`厂区编号`, `统计日期`)
-);
+-- 十三、大屏展示配置索引
+ALTER TABLE `大屏展示配置` ADD INDEX `idx_展示模块` (`展示模块`);
+ALTER TABLE `大屏展示配置` ADD INDEX `idx_权限等级` (`权限等级`);
 
-############################################################
-# 四、告警与运维管理
-############################################################
+-- 十四、实时汇总数据索引
+ALTER TABLE `实时汇总数据` ADD INDEX `idx_统计时间` (`统计时间`);
 
-# 1. 告警信息表
-CREATE TABLE `告警信息表` (
-    `告警编号` VARCHAR(20) PRIMARY KEY,
-    `告警类型` VARCHAR(20) NOT NULL,
-    `关联设备编号` VARCHAR(20) NOT NULL,
-    `发生时间` DATETIME NOT NULL,
-    `告警等级` VARCHAR(20) NOT NULL CHECK (`告警等级` IN ('高','中','低')),
-    `告警内容` VARCHAR(500) NOT NULL,
-    `处理状态` VARCHAR(20) NOT NULL DEFAULT '未处理'
-        CHECK (`处理状态` IN ('未处理','处理中','已结案')),
-    `告警触发阈值` VARCHAR(100),
-    INDEX `idx_关联设备编号` (`关联设备编号`),
-    INDEX `idx_发生时间` (`发生时间`),
-    INDEX `idx_告警等级` (`告警等级`),
-    INDEX `idx_处理状态` (`处理状态`),
-    INDEX `idx_告警类型` (`告警类型`),
-    INDEX `idx_设备时间状态` (`关联设备编号`, `发生时间`, `处理状态`),
-    INDEX `idx_时间等级状态` (`发生时间`, `告警等级`, `处理状态`)
-);
+-- 十五、历史趋势数据索引
+ALTER TABLE `历史趋势数据` ADD INDEX `idx_能源类型` (`能源类型`);
+ALTER TABLE `历史趋势数据` ADD INDEX `idx_统计周期` (`统计周期`);
+ALTER TABLE `历史趋势数据` ADD INDEX `idx_统计时间` (`统计时间`);
+ALTER TABLE `历史趋势数据` ADD INDEX `idx_能源统计时间` (`能源类型`, `统计时间`);
+ALTER TABLE `历史趋势数据` ADD INDEX `idx_周期统计时间` (`统计周期`, `统计时间`);
 
-# 2. 运维工单数据
-CREATE TABLE `运维工单数据` (
-    `工单编号` VARCHAR(20) PRIMARY KEY,
-    `告警编号` VARCHAR(20) NOT NULL,
-    `运维人员ID` VARCHAR(20) NOT NULL,
-    `派单时间` DATETIME NOT NULL,
-    `响应时间` DATETIME,
-    `处理完成时间` DATETIME,
-    `处理结果` VARCHAR(500),
-    `复查状态` VARCHAR(10) CHECK (`复查状态` IN ('通过','未通过')),
-    `附件路径` VARCHAR(200),
-    FOREIGN KEY (`告警编号`) REFERENCES `告警信息表`(`告警编号`),
-    FOREIGN KEY (`运维人员ID`) REFERENCES `用户表`(`用户ID`),
-    INDEX `idx_告警编号` (`告警编号`),
-    INDEX `idx_运维人员ID` (`运维人员ID`),
-    INDEX `idx_派单时间` (`派单时间`),
-    INDEX `idx_处理完成时间` (`处理完成时间`),
-    INDEX `idx_复查状态` (`复查状态`),
-    INDEX `idx_人员派单时间` (`运维人员ID`, `派单时间`)
-);
-
-# 3. 设备台账数据
-CREATE TABLE `设备台账数据` (
-    `台账编号` VARCHAR(20) PRIMARY KEY,
-    `设备名称` VARCHAR(50) NOT NULL,
-    `设备类型` VARCHAR(10) NOT NULL,
-    `型号规格` VARCHAR(50),
-    `安装时间` DATE NOT NULL,
-    `质保期年` INT,
-    `维修记录` VARCHAR(20),
-    `校准记录` VARCHAR(20),
-    `报废状态` VARCHAR(10) CHECK (`报废状态` IN ('正常使用','已报废')),
-    INDEX `idx_设备类型` (`设备类型`),
-    INDEX `idx_安装时间` (`安装时间`),
-    INDEX `idx_报废状态` (`报废状态`),
-    INDEX `idx_设备名称` (`设备名称`),
-    INDEX `idx_类型安装时间` (`设备类型`, `安装时间`)
-);
-
-############################################################
-# 五、大屏展示业务
-############################################################
-
-# 1. 大屏展示配置
-CREATE TABLE `大屏展示配置` (
-    `配置编号` VARCHAR(15) PRIMARY KEY,
-    `展示模块` VARCHAR(50) NOT NULL,
-    `数据刷新频率` INT NOT NULL,
-    `展示字段` VARCHAR(50) NOT NULL,
-    `排序规则` VARCHAR(50),
-    `权限等级` VARCHAR(50) NOT NULL,
-    UNIQUE (`展示模块`,`权限等级`),
-    INDEX `idx_展示模块` (`展示模块`),
-    INDEX `idx_权限等级` (`权限等级`)
-);
-
-# 2. 实时汇总数据
-CREATE TABLE `实时汇总数据` (
-    `汇总编号` VARCHAR(15) PRIMARY KEY,
-    `统计时间` DATETIME NOT NULL,
-    `总用电量` DECIMAL(18,2),
-    `总用水量` DECIMAL(18,2),
-    `总蒸汽消耗量` DECIMAL(18,2),
-    `总天然气消耗量` DECIMAL(18,2),
-    `光伏总发电量` DECIMAL(18,2),
-    `光伏自用电量` DECIMAL(18,2),
-    `总告警次数` INT,
-    `高等级告警数` INT,
-    `中等级告警数` INT,
-    `低等级告警数` INT,
-    INDEX `idx_统计时间` (`统计时间`) USING BTREE
-);
-
-# 3. 历史趋势数据
-CREATE TABLE `历史趋势数据` (
-    `趋势编号` VARCHAR(15) PRIMARY KEY,
-    `能源类型` VARCHAR(20) NOT NULL,
-    `统计周期` VARCHAR(20) NOT NULL,
-    `统计时间` DATE NOT NULL,
-    `能耗或发电量数值` DECIMAL(18,2) NOT NULL,
-    `同比增长率` DECIMAL(8,2),
-    `环比增长率` DECIMAL(8,2),
-    `行业均值` VARCHAR(20),
-    INDEX `idx_能源类型` (`能源类型`),
-    INDEX `idx_统计周期` (`统计周期`),
-    INDEX `idx_统计时间` (`统计时间`),
-    INDEX `idx_能源统计时间` (`能源类型`, `统计时间`),
-    INDEX `idx_周期统计时间` (`统计周期`, `统计时间`)
-);
-
-############################################################
-# 六、用户表
-############################################################
-
-CREATE TABLE `用户表` (
-    `用户ID` CHAR(3) PRIMARY KEY,
-    `姓名` VARCHAR(50) NOT NULL,
-    `密码` VARCHAR(100) NOT NULL,
-    `角色` VARCHAR(50) NOT NULL CHECK (`角色` IN (
-        '系统管理员','能源管理员','运维人员','数据分析师','企业管理层','运维工单管理员'
-    )),
-    INDEX `idx_角色` (`角色`),
-    INDEX `idx_姓名` (`姓名`)
-);
-
-SET FOREIGN_KEY_CHECKS = 1;
+-- 十六、用户表索引
+ALTER TABLE `用户表` ADD INDEX `idx_角色` (`角色`);
+ALTER TABLE `用户表` ADD INDEX `idx_姓名` (`姓名`);
