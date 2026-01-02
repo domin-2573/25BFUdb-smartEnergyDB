@@ -14,7 +14,7 @@ public interface UserDao {
             "VALUES (#{userId}, #{name}, #{password}, #{role})")
     int insertUser(User user);
     
-    @Select("SELECT `用户ID` AS userId, `姓名` AS name, `密码` AS password, `角色` AS role FROM `用户表` WHERE `用户ID` = #{userId}")
+    @Select("SELECT `用户ID` AS userId, `姓名` AS name, `密码` AS password, `角色` AS role, `最后登录时间` AS lastLoginTime FROM `用户表` WHERE `用户ID` = #{userId}")
     User getUserById(@Param("userId") String userId);
     
     @Select("SELECT `用户ID` AS userId, `姓名` AS name, `密码` AS password, `角色` AS role FROM `用户表` WHERE `姓名` = #{name}")
@@ -32,5 +32,11 @@ public interface UserDao {
     
     @Delete("DELETE FROM `用户表` WHERE `用户ID` = #{userId}")
     int deleteUser(@Param("userId") String userId);
+    
+    @Update("UPDATE `用户表` SET `最后登录时间` = NOW() WHERE `用户ID` = #{userId}")
+    int updateLastLoginTime(@Param("userId") String userId);
+    
+    @Update("UPDATE `用户表` SET `登录失败次数` = #{count}, `账号锁定时间` = #{lockTime} WHERE `用户ID` = #{userId}")
+    int updateLoginFailure(@Param("userId") String userId, @Param("count") int count, @Param("lockTime") java.util.Date lockTime);
 }
 

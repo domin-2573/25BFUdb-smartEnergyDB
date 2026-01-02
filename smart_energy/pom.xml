@@ -9,7 +9,8 @@
     <artifactId>SmartEnergy</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>智慧能源管理系统</name>
+    <name>SmartEnergy - 智慧能源管理系统</name>
+    <description>SmartEnergy智慧能源管理系统 - 配电网监测、分布式光伏管理、综合能耗管理、告警运维、大屏数据展示</description>
     
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -87,4 +88,3 @@
         </plugins>
     </build>
 </project>
-

@@ -53,8 +53,8 @@
         <h1>欢迎使用智慧能源管理系统</h1>
         <p>这是一个基于Spring Boot的智慧能源管理平台，提供配电房监测、光伏发电、能耗管理等功能。</p>
         <div class="links">
-            <a href="/energy/admin/dashboard">进入仪表板</a>
-            <a href="/energy/admin/dashboard/data">查看API数据</a>
+            <a href="/SmartEnergy/admin/dashboard">进入仪表板</a>
+            <a href="/SmartEnergy/admin/dashboard/data">查看API数据</a>
         </div>
     </div>
 </body>
