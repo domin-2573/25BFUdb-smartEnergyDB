@@ -1,0 +1,300 @@
+@startuml
+' 设置样式
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    FontSize 9
+}
+hide empty members
+
+' 为每个业务线定义颜色变量
+!define POWER_GRID #CCE5FF
+!define PV_MANAGE #D4EDDA
+!define ENERGY_MANAGE #FFF3CD
+!define ALARM_OPS #F8D7DA
+!define DASHBOARD #D1ECF1
+!define USER_MANAGE #F5F5F5
+
+' 定义业务线颜色样式
+skinparam classBackgroundColor<<PowerGrid>> POWER_GRID
+skinparam classBackgroundColor<<PvManage>> PV_MANAGE
+skinparam classBackgroundColor<<EnergyManage>> ENERGY_MANAGE
+skinparam classBackgroundColor<<AlarmOps>> ALARM_OPS
+skinparam classBackgroundColor<<Dashboard>> DASHBOARD
+skinparam classBackgroundColor<<UserManage>> USER_MANAGE
+
+' 设置垂直布局
+top to bottom direction
+
+' ===================== 第一层：基础架构层 =====================
+package "基础架构层" {
+  class User <<UserManage>> {
+    + user_id : String [PK]
+    + name : String
+    + password : String
+    + role : String
+  }
+  
+  note right of User : "系统用户管理\n支持RBAC权限控制"
+}
+
+' ===================== 第二层：设备管理层 =====================
+package "设备管理层" {
+  package "配电网监测业务" {
+    class Substation <<PowerGrid>> {
+      + substation_id : String [PK]
+      + name : String
+      + location : String
+      + voltage_level : String
+      + transformer_count : Integer
+      + operation_time : Date
+      + manager_id : String
+      + contact : String
+    }
+  }
+  
+  package "光伏管理业务" {
+    class PvDevice <<PvManage>> {
+      + device_id : String [PK]
+      + device_type : String
+      + install_location : String
+      + capacity : String
+      + operation_time : Date
+      + calibration_cycle : Integer
+      + operation_status : String
+      + communication_protocol : String
+    }
+  }
+  
+  package "能耗管理业务" {
+    class EnergyMeterDevice <<EnergyManage>> {
+      + device_id : String [PK]
+      + energy_type : String
+      + install_location : String
+      + pipe_diameter : String
+      + communication_protocol : String
+      + operation_status : String
+      + calibration_cycle : Integer
+      + manufacturer : String
+    }
+  }
+  
+  note bottom of Substation : "配电房信息表\n配电网监测业务"
+  note bottom of PvDevice : "光伏设备信息表\n光伏管理业务"
+  note bottom of EnergyMeterDevice : "能耗计量设备信息表\n能耗管理业务"
+}
+
+' ===================== 第三层：展示应用层（紧接设备管理层） =====================
+package "展示应用层" {
+  class DashboardConfig <<Dashboard>> {
+    + config_id : String [PK]
+    + display_module : String
+    + refresh_frequency : Integer
+    + display_field1 : String
+    + sort_rule : String
+    + permission_level : String
+  }
+  
+  class RealtimeSummaryData <<Dashboard>> {
+    + summary_id : String [PK]
+    + statistics_time : String
+    + total_electricity : Float
+    + total_water : Float
+    + total_steam : Float
+    + total_gas : Float
+    + total_pv_generation : Float
+    + total_pv_self_consumption : Float
+    + total_alarm_count : Integer
+    + high_level_alarm_count : Integer
+    + medium_level_alarm_count : Integer
+    + low_level_alarm_count : Integer
+  }
+  
+  class HistoryTrendData <<Dashboard>> {
+    + trend_id : String [PK]
+    + energy_type : String
+    + statistics_period : String
+    + statistics_date : Date
+    + energy_value : Float
+    + year_over_year_growth : Float
+    + month_over_month_growth : Float
+    + industry_average : String
+  }
+  
+  note bottom of DashboardConfig : "大屏展示配置表\n大屏展示业务"
+  note bottom of RealtimeSummaryData : "实时汇总数据表\n大屏展示业务"
+  note bottom of HistoryTrendData : "历史趋势数据表\n大屏展示业务"
+}
+
+' ===================== 第四层：数据采集层 =====================
+package "数据采集层" {
+  package "配电网监测业务数据" {
+    class CircuitData <<PowerGrid>> {
+      + data_id : String [PK]
+      + substation_id : String [FK]
+      + circuit_id : String
+      + collect_time : String
+      + voltage : Float
+      + current : Float
+      + active_power : Float
+      + reactive_power : Float
+      + power_factor : Float
+      + forward_active_energy : Float
+      + reverse_active_energy : Float
+      + switch_status : String
+      + cable_temp : Float
+      + capacitor_temp : Float
+    }
+    
+    class TransformerData <<PowerGrid>> {
+      + data_id : String [PK]
+      + substation_id : String [FK]
+      + transformer_id : String
+      + collect_time : String
+      + load_rate : Float
+      + winding_temp : Float
+      + core_temp : Float
+      + ambient_temp : Float
+      + ambient_humidity : Float
+      + operation_status : String
+    }
+  }
+  
+  package "光伏管理业务数据" {
+    class PvGenerationData <<PvManage>> {
+      + data_id : String [PK]
+      + device_id : String [FK]
+      + grid_point_id : String
+      + collect_time : String
+      + generation : Float
+      + grid_power : Float
+      + self_consumption : Float
+      + string_voltage : Float
+      + string_current : Float
+      + inverter_efficiency : Float
+    }
+    
+    class PvForecastData <<PvManage>> {
+      + forecast_id : String [PK]
+      + grid_point_id : String
+      + forecast_date : Date
+      + forecast_period : String
+      + forecast_generation : Float
+      + actual_generation : Float
+      + deviation_rate : Float
+      + model_version : String
+    }
+  }
+  
+  package "能耗管理业务数据" {
+    class EnergyMonitorData <<EnergyManage>> {
+      + data_id : String [PK]
+      + device_id : String [FK]
+      + collect_time : String
+      + energy_value : Float
+      + unit : String
+      + data_quality : String
+      + factory_id : String
+    }
+    
+    class PeakValleyEnergyData <<EnergyManage>> {
+      + record_id : String [PK]
+      + energy_type : String
+      + factory_id : String
+      + statistics_date : Date
+      + peak_energy : Float
+      + high_energy : Float
+      + normal_energy : Float
+      + valley_energy : Float
+      + total_energy : Float
+      + peak_valley_price : Float
+      + energy_cost : Float
+    }
+  }
+  
+  note top of CircuitData : "回路监测数据表\n配电网监测业务"
+  note top of TransformerData : "变压器监测数据表\n配电网监测业务"
+  note top of PvGenerationData : "光伏发电数据表\n光伏管理业务"
+  note top of PvForecastData : "光伏预测数据表\n光伏管理业务"
+  note top of EnergyMonitorData : "能耗监测数据表\n能耗管理业务"
+  note top of PeakValleyEnergyData : "峰谷能耗数据表\n能耗管理业务"
+}
+
+' ===================== 第五层：业务处理层 =====================
+package "业务处理层" {
+  class Alarm <<AlarmOps>> {
+    + alarm_id : String [PK]
+    + alarm_type : String
+    + device_id : String
+    + occur_time : String
+    + alarm_level : String
+    + alarm_content : String
+    + handle_status : String
+    + trigger_threshold : String
+  }
+  
+  class MaintenanceWorkOrder <<AlarmOps>> {
+    + work_order_id : String [PK]
+    + alarm_id : String [FK]
+    + maintenance_person_id : String [FK]
+    + dispatch_time : String
+    + response_time : String
+    + completion_time : String
+    + process_result : String
+    + review_status : String
+    + attachment_path : String
+  }
+  
+  note right of Alarm : "告警信息表\n告警运维业务"
+  note left of MaintenanceWorkOrder : "运维工单数据表\n告警运维业务"
+}
+
+' ===================== 第六层：设备台账层 =====================
+package "设备台账层" {
+  class EquipmentLedger <<AlarmOps>> {
+    + ledger_id : String [PK]
+    + equipment_name : String
+    + equipment_type : String
+    + model_specification : String
+    + install_time : Date
+    + warranty_period : Integer
+    + maintenance_record : String
+    + calibration_record : String
+    + scrap_status : String
+  }
+  
+  note top of EquipmentLedger : "设备台账数据表\n告警运维业务"
+}
+
+' ===================== 核心关联关系 =====================
+' 设备管理层关联
+CircuitData --> Substation : "belongs to"
+TransformerData --> Substation : "belongs to"
+PvGenerationData --> PvDevice : "belongs to"
+EnergyMonitorData --> EnergyMeterDevice : "belongs to"
+
+' 业务处理层关联
+MaintenanceWorkOrder --> Alarm : "based on"
+MaintenanceWorkOrder --> User : "assigned to"
+
+' 设备台账关联
+EquipmentLedger ..> MaintenanceWorkOrder : "references"
+
+' 添加层间连线（调整顺序）
+Substation -[hidden]d-> CircuitData
+PvDevice -[hidden]d-> PvGenerationData
+EnergyMeterDevice -[hidden]d-> EnergyMonitorData
+Alarm -[hidden]d-> EquipmentLedger
+
+' 添加图例说明业务归属
+legend right
+  | 颜色 | 业务线 | 对应表数 |
+  | <color:POWER_GRID>█</color> | 配电网监测业务 | 3表 |
+  | <color:PV_MANAGE>█</color> | 光伏管理业务 | 3表 |
+  | <color:ENERGY_MANAGE>█</color> | 综合能耗管理业务 | 3表 |
+  | <color:ALARM_OPS>█</color> | 告警运维管理业务 | 3表 |
+  | <color:DASHBOARD>█</color> | 大屏展示业务 | 3表 |
+  | <color:USER_MANAGE>█</color> | 用户管理 | 1表 |
+end legend
+
+@enduml
