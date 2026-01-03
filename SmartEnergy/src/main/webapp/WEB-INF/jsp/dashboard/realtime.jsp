@@ -158,6 +158,32 @@
             animation: slideIn 0.5s;
         }
         
+        .alert-item.alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-left-color: #ef4444;
+        }
+        
+        .alert-item.alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-left-color: #f59e0b;
+        }
+        
+        .alert-item.alert-info {
+            background: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+        }
+        
+        .alert-content {
+            margin: 0.5rem 0;
+            color: #e2e8f0;
+        }
+        
+        .alert-device {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+        
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -445,32 +471,74 @@
         async function loadRealtimeData() {
             try {
                 const response = await fetch('/SmartEnergy/dashboard/realtime/latest');
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
                 const data = await response.json();
                 
-                updateStatistics(data);
-                
-                // 更新告警图表
-                alarmChart.data.datasets[0].data = [
-                    data.highLevelAlarmCount || 0,
-                    data.mediumLevelAlarmCount || 0,
-                    data.lowLevelAlarmCount || 0
-                ];
-                alarmChart.update();
+                // 检查数据是否为空
+                if (data && (data.summaryId !== 'DEFAULT' || data.totalAlarmCount !== null)) {
+                    updateStatistics(data);
+                    
+                    // 更新告警图表
+                    alarmChart.data.datasets[0].data = [
+                        data.highLevelAlarmCount || 0,
+                        data.mediumLevelAlarmCount || 0,
+                        data.lowLevelAlarmCount || 0
+                    ];
+                    alarmChart.update();
+                } else {
+                    console.warn('实时数据为空，显示默认值');
+                    // 显示默认值
+                    updateStatistics({
+                        totalElectricity: 0,
+                        totalWater: 0,
+                        totalGas: 0,
+                        totalPvGeneration: 0,
+                        totalAlarmCount: 0,
+                        highLevelAlarmCount: 0,
+                        mediumLevelAlarmCount: 0,
+                        lowLevelAlarmCount: 0
+                    });
+                }
                 
             } catch (error) {
                 console.error('加载数据失败:', error);
+                // 显示错误提示
+                document.getElementById('totalElectricity').textContent = '加载失败';
             }
         }
 
         // 加载告警列表
         async function loadAlarms() {
             try {
-                const response = await fetch('/SmartEnergy/alarm/manage');
-                // 这里需要根据实际API调整
+                const response = await fetch('/SmartEnergy/alarm/list?limit=10');
+                const alarms = await response.json();
                 const alertList = document.getElementById('alertList');
-                alertList.innerHTML = '<div class="alert-item"><div>暂无告警信息</div></div>';
+                
+                if (alarms && alarms.length > 0) {
+                    alertList.innerHTML = alarms.map(alarm => {
+                        const levelClass = alarm.alarmLevel === '高' ? 'danger' : 
+                                          alarm.alarmLevel === '中' ? 'warning' : 'info';
+                        const time = new Date(alarm.occurTime).toLocaleString('zh-CN');
+                        return `
+                            <div class="alert-item alert-${levelClass}">
+                                <div class="alert-time">${time}</div>
+                                <div class="alert-content">
+                                    <span class="badge bg-${levelClass}">${alarm.alarmLevel}</span>
+                                    ${alarm.alarmContent}
+                                </div>
+                                <div class="alert-device">设备: ${alarm.deviceId}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    alertList.innerHTML = '<div class="alert-item"><div>暂无告警信息</div></div>';
+                }
             } catch (error) {
                 console.error('加载告警失败:', error);
+                const alertList = document.getElementById('alertList');
+                alertList.innerHTML = '<div class="alert-item"><div>加载告警失败</div></div>';
             }
         }
 

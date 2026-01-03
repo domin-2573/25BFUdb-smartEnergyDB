@@ -56,7 +56,24 @@ public class DashboardServiceImpl implements IDashboardService {
     
     @Override
     public RealtimeSummaryData getLatestRealtimeSummaryData() {
-        return realtimeSummaryDataDao.getLatestRealtimeSummaryData();
+        RealtimeSummaryData data = realtimeSummaryDataDao.getLatestRealtimeSummaryData();
+        // 如果数据库中没有数据，返回一个默认的空数据对象，避免前端显示null
+        if (data == null) {
+            data = new RealtimeSummaryData();
+            data.setSummaryId("DEFAULT");
+            data.setStatisticsTime(new java.util.Date());
+            data.setTotalElectricity(java.math.BigDecimal.ZERO);
+            data.setTotalWater(java.math.BigDecimal.ZERO);
+            data.setTotalSteam(java.math.BigDecimal.ZERO);
+            data.setTotalGas(java.math.BigDecimal.ZERO);
+            data.setTotalPvGeneration(java.math.BigDecimal.ZERO);
+            data.setTotalPvSelfConsumption(java.math.BigDecimal.ZERO);
+            data.setTotalAlarmCount(0);
+            data.setHighLevelAlarmCount(0);
+            data.setMediumLevelAlarmCount(0);
+            data.setLowLevelAlarmCount(0);
+        }
+        return data;
     }
     
     @Override

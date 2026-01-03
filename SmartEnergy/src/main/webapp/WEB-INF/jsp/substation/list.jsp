@@ -86,9 +86,14 @@
                     </h2>
                     <p class="text-muted mb-0 mt-2">管理所有配电房信息</p>
                 </div>
-                <a href="/SmartEnergy/substation/add" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> 添加配电房
-                </a>
+                <div>
+                    <button onclick="checkCompleteness()" class="btn btn-warning me-2">
+                        <i class="bi bi-exclamation-triangle"></i> 检查信息完整性
+                    </button>
+                    <a href="/SmartEnergy/substation/add" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> 添加配电房
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -111,15 +116,24 @@
                     </thead>
                     <tbody>
                         <c:forEach var="substation" items="${substations}">
-                            <tr>
+                            <tr class="${empty substation.voltageLevel or empty substation.name or empty substation.location or empty substation.managerId or empty substation.contact ? 'table-warning' : ''}">
                                 <td><strong>${substation.substationId}</strong></td>
-                                <td>${substation.name}</td>
-                                <td>${substation.location}</td>
-                                <td><span class="badge bg-info">${substation.voltageLevel}</span></td>
+                                <td>${empty substation.name ? '<span class="text-danger">缺失</span>' : substation.name}</td>
+                                <td>${empty substation.location ? '<span class="text-danger">缺失</span>' : substation.location}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${empty substation.voltageLevel}">
+                                            <span class="badge bg-danger">缺失</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="badge bg-info">${substation.voltageLevel}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
                                 <td>${substation.transformerCount}</td>
                                 <td>${substation.operationTime}</td>
-                                <td>${substation.managerId}</td>
-                                <td>${substation.contact}</td>
+                                <td>${empty substation.managerId ? '<span class="text-danger">缺失</span>' : substation.managerId}</td>
+                                <td>${empty substation.contact ? '<span class="text-danger">缺失</span>' : substation.contact}</td>
                                 <td>
                                     <a href="/SmartEnergy/substation/detail/${substation.substationId}" 
                                        class="btn btn-sm btn-outline-primary">
@@ -144,6 +158,55 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function checkCompleteness() {
+            if (!confirm('确定要检查所有配电房信息完整性吗？缺失的信息将生成告警。')) {
+                return;
+            }
+            
+            const btn = event.target.closest('button');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 检查中...';
+            
+            fetch('/SmartEnergy/substation/checkCompleteness', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> 检查信息完整性';
+                
+                if (data.success) {
+                    let message = data.message;
+                    if (data.missingSubstations && data.missingSubstations.length > 0) {
+                        message += '\n缺失信息的配电房：' + data.missingSubstations.join('、');
+                    }
+                    alert(message);
+                    // 刷新页面以显示新生成的告警
+                    if (data.alarmCount > 0) {
+                        if (confirm('已生成 ' + data.alarmCount + ' 条告警，是否前往告警页面查看？')) {
+                            window.location.href = '/SmartEnergy/alarm/manage';
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert('检查失败：' + (data.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> 检查信息完整性';
+                console.error('检查失败:', error);
+                alert('检查失败，请稍后重试');
+            });
+        }
+    </script>
 </body>
 </html>
 
