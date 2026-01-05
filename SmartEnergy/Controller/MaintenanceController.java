@@ -3,6 +3,8 @@ package Demo.Controller;
 import Demo.Entity.MaintenanceWorkOrder;
 import Demo.Entity.EquipmentLedger;
 import Demo.Service.IMaintenanceService;
+import Demo.Service.IUserService;
+import Demo.Entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,11 +22,11 @@ public class MaintenanceController {
     @Autowired
     private IMaintenanceService maintenanceService;
     
-    // ========== 运维工单管理 ==========
+    // 新增：注入用户服务（用于查询运维人员）
+    @Autowired
+    private IUserService userService;
     
-    /**
-     * 运维工单列表页面
-     */
+    // ========== 原有运维工单管理方法（保持不变） ==========
     @GetMapping("/workorder/list")
     public String workOrderList(
             @RequestParam(required = false) String personId,
@@ -42,9 +44,6 @@ public class MaintenanceController {
         return "maintenance/workorder_list";
     }
     
-    /**
-     * 获取配电房运维效率统计
-     */
     @GetMapping("/efficiency")
     @ResponseBody
     public List<Map<String, Object>> getSubstationMaintenanceEfficiency(
@@ -53,9 +52,6 @@ public class MaintenanceController {
         return maintenanceService.getSubstationMaintenanceEfficiency(startTime, endTime);
     }
     
-    /**
-     * 更新运维工单
-     */
     @PostMapping("/workorder/update")
     @ResponseBody
     public String updateMaintenanceWorkOrder(@RequestBody MaintenanceWorkOrder workOrder) {
@@ -63,11 +59,7 @@ public class MaintenanceController {
         return result > 0 ? "success" : "failed";
     }
     
-    // ========== 设备台账管理 ==========
-    
-    /**
-     * 设备台账列表页面
-     */
+    // ========== 原有设备台账管理方法（保持不变） ==========
     @GetMapping("/ledger/list")
     public String equipmentLedgerList(
             @RequestParam(required = false) String equipmentType,
@@ -82,23 +74,39 @@ public class MaintenanceController {
         return "maintenance/ledger_list";
     }
     
-    /**
-     * 获取质保即将到期的设备
-     */
     @GetMapping("/ledger/expiringWarranty")
     @ResponseBody
     public List<EquipmentLedger> getEquipmentLedgersExpiringWarranty() {
         return maintenanceService.getEquipmentLedgersExpiringWarranty();
     }
     
-    /**
-     * 更新设备台账
-     */
     @PostMapping("/ledger/update")
     @ResponseBody
     public String updateEquipmentLedger(@RequestBody EquipmentLedger ledger) {
         int result = maintenanceService.updateEquipmentLedger(ledger);
         return result > 0 ? "success" : "failed";
     }
+    
+    // ========== 新增：高等级告警派单相关方法 ==========
+    /**
+     * 高等级告警页面（携带运维人员列表）
+     */
+    @GetMapping("/highLevelDispatch")
+    public String highLevelDispatchPage(Model model) {
+        List<User> maintenanceUsers = userService.getUsersByRole("运维人员"); // 查询所有运维人员
+        List<MaintenanceWorkOrder> workOrderList = maintenanceService.getMaintenanceWorkOrdersByReviewStatus("未通过");
+        model.addAttribute("maintenanceUsers", maintenanceUsers);
+        model.addAttribute("workOrderList", workOrderList); // 保留原有工单列表数据
+        return "alarm/high_level_alarms";
+    }
+    
+    /**
+     * 手动派单接口
+     */
+    @PostMapping("/dispatch")
+    @ResponseBody
+    public Map<String, Object> manualDispatch(@RequestParam String alarmId, 
+                                             @RequestParam String maintenancePersonId) {
+        return maintenanceService.manualDispatchHighLevelAlarm(alarmId, maintenancePersonId);
+    }
 }
-

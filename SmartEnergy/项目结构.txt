@@ -1,0 +1,216 @@
+卷 新加卷 的文件夹 PATH 列表
+卷序列号为 6C0F-E560
+G:.
+│  .classpath
+│  .project
+│  DAO表名修复说明.md
+│  DatabaseConnectionTest.java
+│  PlantSystemApplication.java
+│  pom.xml
+│  welcome.jsp
+│  前端页面创建完成说明.md
+│  功能修复完成说明.md
+│  启动说明.md
+│  大屏DAO表名修复说明.md
+│  大屏数据展示功能说明.md
+│  快速测试步骤.md
+│  数据备份恢复策略.md
+│  数据库设计完善说明.md
+│  数据库设计文档-事务一.md
+│  数据库连接和登录问题排查指南.md
+│  登录成功和问题修复总结.md
+│  登录问题修复说明.md
+│  项目完成总结.md
+│  项目结构.txt
+│  
+├─.metadata
+│  │  .log
+│  │  
+│  └─.plugins
+│      ├─org.eclipse.m2e.logback.configuration
+│      │      0.log
+│      │      
+│      ├─org.eclipse.pde.core
+│      │  └─.cache
+│      │          clean-cache.properties
+│      │          
+│      └─org.eclipse.rse.core
+│              .log
+│              
+├─.settings
+│      .jsdtscope
+│      org.eclipse.core.resources.prefs
+│      org.eclipse.jdt.core.prefs
+│      org.eclipse.m2e.core.prefs
+│      org.eclipse.wst.common.component
+│      org.eclipse.wst.common.project.facet.core.prefs.xml
+│      org.eclipse.wst.common.project.facet.core.xml
+│      org.eclipse.wst.jsdt.ui.superType.container
+│      org.eclipse.wst.jsdt.ui.superType.name
+│      org.eclipse.wst.validation.prefs
+│      org.springframework.ide.eclipse.prefs
+│      
+├─Config
+│      ScheduledConfig.java
+│      SecurityConfig.java
+│      
+├─Controller
+│      AdminController.java
+│      AlarmController.java
+│      AuthController.java
+│      DashboardController.java
+│      DatabaseTestController.java
+│      EnergyController.java
+│      EnergyMonitorController.java
+│      HomeController.java
+│      MaintenanceController.java
+│      PvForecastController.java
+│      PvGenerationController.java
+│      SubstationController.java
+│      TransformerDataController.java
+│      UserController.java
+│      
+├─Dao
+│      AlarmDao.java
+│      CircuitDataDao.java
+│      DashboardConfigDao.java
+│      EnergyMeterDeviceDao.java
+│      EnergyMonitorDataDao.java
+│      EquipmentLedgerDao.java
+│      HistoryTrendDataDao.java
+│      MaintenanceWorkOrderDao.java
+│      PeakValleyEnergyDataDao.java
+│      PvDeviceDao.java
+│      PvForecastDataDao.java
+│      PvGenerationDataDao.java
+│      RealtimeSummaryDataDao.java
+│      SubstationDao.java
+│      TransformerDataDao.java
+│      UserDao.java
+│      
+├─Entity
+│      Alarm.java
+│      CircuitData.java
+│      DashboardConfig.java
+│      EnergyMeterDevice.java
+│      EnergyMonitorData.java
+│      EquipmentLedger.java
+│      HistoryTrendData.java
+│      MaintenanceWorkOrder.java
+│      PeakValleyEnergyData.java
+│      PvDevice.java
+│      PvForecastData.java
+│      PvGenerationData.java
+│      RealtimeSummaryData.java
+│      Substation.java
+│      TransformerData.java
+│      User.java
+│      
+├─Interceptor
+│      LoginInterceptor.java
+│      
+├─Service
+│      AlarmAutoDispatchService.java
+│      AlarmScheduledService.java
+│      AlarmServiceTest.java
+│      AuthService.java
+│      DashboardServiceImpl.java
+│      EnergyMonitorServiceImpl.java
+│      EnergyServiceImpl.java
+│      IDashboardService.java
+│      IEnergyMonitorService.java
+│      IEnergyService.java
+│      IMaintenanceService.java
+│      IPvForecastService.java
+│      IPvGenerationService.java
+│      ISubstationService.java
+│      ITransformerDataService.java
+│      IUserService.java
+│      MaintenanceServiceImpl.java
+│      PvForecastServiceImpl.java
+│      PvGenerationServiceImpl.java
+│      SubstationServiceImpl.java
+│      TransformerDataServiceImpl.java
+│      UserServiceImpl.java
+│      
+├─sql
+│      01_DDL_创建表结构.sql
+│      02_视图定义.sql
+│      03_存储过程和触发器.sql
+│      04_复杂查询语句.sql
+│      05_测试数据.sql
+│      05_测试数据_修正版.sql
+│      创建并插入-并网点信息表--数据.sql
+│      插入--光伏发电数据表.sql
+│      插入--告警信息--设备台账--运维工单--数据.sql
+│      插入光伏设备信息表数据.sql
+│      测试数据脚本检查报告.md
+│      用户密码说明.md
+│      
+├─src
+│  └─main
+│      ├─resources
+│      │      application.properties
+│      │      
+│      └─webapp
+│          └─WEB-INF
+│              └─jsp
+│                  │  login.jsp
+│                  │  
+│                  ├─admin
+│                  │      dashboard.jsp
+│                  │      system_config.jsp
+│                  │      user_manage.jsp
+│                  │      
+│                  ├─alarm
+│                  │      alarm_device_relation.jsp
+│                  │      alarm_manage.jsp
+│                  │      alarm_statistics.jsp
+│                  │      
+│                  ├─dashboard
+│                  │      config_list.jsp
+│                  │      realtime.jsp
+│                  │      trend.jsp
+│                  │      
+│                  ├─energy
+│                  │      circuit_monitor.jsp
+│                  │      data_list.jsp
+│                  │      device_list.jsp
+│                  │      pv_management.jsp
+│                  │      
+│                  ├─maintenance
+│                  │      ledger_list.jsp
+│                  │      workorder_list.jsp
+│                  │      
+│                  ├─pv
+│                  │      generation_list.jsp
+│                  │      
+│                  ├─substation
+│                  │      add.jsp
+│                  │      detail.jsp
+│                  │      list.jsp
+│                  │      
+│                  └─user
+│                          add.jsp
+│                          detail.jsp
+│                          list.jsp
+│                          
+├─target
+│  ├─classes
+│  │      application.properties
+│  │      
+│  └─m2e-wtp
+│      └─web-resources
+│          └─META-INF
+│              │  MANIFEST.MF
+│              │  
+│              └─maven
+│                  └─com.myapp
+│                      └─SmartEnergy
+│                              pom.properties
+│                              pom.xml
+│                              
+└─Tool
+        DateTool.java
+        SecurityTool.java
+        

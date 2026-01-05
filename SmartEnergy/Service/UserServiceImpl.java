@@ -1,6 +1,7 @@
 package Demo.Service;
 
 import Demo.Dao.UserDao;
+import java.util.ArrayList;
 import Demo.Entity.User;
 import Demo.Tool.SecurityTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,18 @@ public class UserServiceImpl implements IUserService {
             return false;
         }
         return validatePassword(password, user.getPassword());
+    }
+    
+    @Override
+    public List<String> getMaintenancePersonIds() {
+        // 实现获取维修人员ID列表的逻辑
+        // 例如：
+        // return userDao.getUsersByRole("maintenance").stream()
+        //        .map(User::getId)
+        //        .collect(Collectors.toList());
+        
+        // 暂时先返回空列表
+        return new ArrayList<>();
     }
 }
 
