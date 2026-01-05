@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface IMaintenanceService {
     
-    // 运维工单管理
+    // 原有运维工单管理方法（保持不变）
     int insertMaintenanceWorkOrder(MaintenanceWorkOrder workOrder);
     MaintenanceWorkOrder getMaintenanceWorkOrderById(String workOrderId);
     List<MaintenanceWorkOrder> getMaintenanceWorkOrdersByAlarmId(String alarmId);
@@ -19,7 +19,7 @@ public interface IMaintenanceService {
     List<Map<String, Object>> getSubstationMaintenanceEfficiency(String startTime, String endTime);
     int updateMaintenanceWorkOrder(MaintenanceWorkOrder workOrder);
     
-    // 设备台账管理
+    // 原有设备台账管理方法（保持不变）
     int insertEquipmentLedger(EquipmentLedger ledger);
     EquipmentLedger getEquipmentLedgerById(String ledgerId);
     List<EquipmentLedger> getEquipmentLedgersByType(String equipmentType);
@@ -28,5 +28,7 @@ public interface IMaintenanceService {
     List<EquipmentLedger> getEquipmentLedgersExpiringWarranty();
     int updateEquipmentLedger(EquipmentLedger ledger);
     int deleteEquipmentLedger(String ledgerId);
+    
+    // 新增：高等级告警手动派单方法
+    Map<String, Object> manualDispatchHighLevelAlarm(String alarmId, String maintenancePersonId);
 }
-

@@ -62,5 +62,10 @@ public interface MaintenanceWorkOrderDao {
             "`复查状态` = #{reviewStatus}, `附件路径` = #{attachmentPath} " +
             "WHERE `工单编号` = #{workOrderId}")
     int updateMaintenanceWorkOrder(MaintenanceWorkOrder workOrder);
+    
+ // 新增：根据告警编号查询工单数量（注解方式，无需XML）
+    @Select("SELECT COUNT(1) FROM `运维工单数据表` WHERE `告警编号` = #{alarmId}")
+    int countByAlarmId(@Param("alarmId") String alarmId);
+
 }
 
