@@ -73,6 +73,19 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Spring Boot Starter Data JDBC -->
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-data-jdbc</artifactId>
+	    </dependency>
+	    
+	    <!-- Lombok（如果使用） -->
+	    <dependency>
+        <groupId>org.projectlombok</groupId>
+	        <artifactId>lombok</artifactId>
+	        <optional>true</optional>
+	    </dependency>
     </dependencies>
     
     <build>

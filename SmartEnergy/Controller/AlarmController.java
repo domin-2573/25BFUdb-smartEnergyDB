@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/alarm")
@@ -47,12 +49,21 @@ public class AlarmController {
                 .collect(java.util.stream.Collectors.toList());
     }
     
-    // 获取告警统计API
+    // 获取告警统计API - 修改为可选参数
     @GetMapping("/statistics")
     @ResponseBody
     public Map<String, Object> getAlarmStatistics(
-            @RequestParam String startTime,
-            @RequestParam String endTime) {
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 如果没有提供时间参数，使用默认值（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
         return energyService.getAlarmStatistics(startTime, endTime);
     }
     
@@ -70,5 +81,193 @@ public class AlarmController {
         List<Alarm> highAlarms = energyService.getHighLevelUnhandledAlarms();
         model.addAttribute("highAlarms", highAlarms);
         return "alarm/high_level_alarms";
+    }
+    
+    /**
+     * 告警统计页面
+     */
+    @GetMapping("/statistics/page")
+    public String alarmStatisticsPage(Model model) {
+        // 为页面设置默认时间范围
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(30);
+        model.addAttribute("defaultStartTime", startDate.toString());
+        model.addAttribute("defaultEndTime", endDate.toString());
+        return "alarm/alarm_statistics";
+    }
+
+    /**
+     * 告警类型分布统计API - 修改为可选参数
+     */
+    @GetMapping("/statistics/typeDistribution")
+    @ResponseBody
+    public Map<String, Object> getAlarmTypeDistribution(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        List<Map<String, Object>> result = energyService.getAlarmTypeDistribution(startTime, endTime);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", result);
+        response.put("total", result.size());
+        return response;
+    }
+
+    /**
+     * 告警等级分布统计API - 修改为可选参数
+     */
+    @GetMapping("/statistics/levelDistribution")
+    @ResponseBody
+    public Map<String, Object> getAlarmLevelDistribution(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        List<Map<String, Object>> result = energyService.getAlarmLevelDistribution(startTime, endTime);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", result);
+        response.put("total", result.size());
+        return response;
+    }
+
+    /**
+     * 告警处理效率统计API - 修改为可选参数
+     */
+    @GetMapping("/statistics/handleEfficiency")
+    @ResponseBody
+    public Map<String, Object> getAlarmHandleEfficiency(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        return energyService.getAlarmHandleEfficiency(startTime, endTime);
+    }
+
+    /**
+     * 告警趋势分析API（按天统计）- 修改为可选参数
+     */
+    @GetMapping("/statistics/trendByDay")
+    @ResponseBody
+    public Map<String, Object> getAlarmTrendByDay(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近7天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(7);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        List<Map<String, Object>> result = energyService.getAlarmTrendByDay(startTime, endTime);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", result);
+        response.put("total", result.size());
+        return response;
+    }
+    
+    /**
+     * 告警与设备关联页面
+     */
+    @GetMapping("/device/relation/page")
+    public String alarmDeviceRelationPage(Model model) {
+        // 为页面设置默认时间范围
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(30);
+        model.addAttribute("defaultStartTime", startDate.toString());
+        model.addAttribute("defaultEndTime", endDate.toString());
+        return "alarm/alarm_device_relation";
+    }
+
+    /**
+     * 频繁告警设备TOP10 API - 修改为可选参数
+     */
+    @GetMapping("/device/frequentAlarms")
+    @ResponseBody
+    public Map<String, Object> getFrequentAlarmDevices(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(defaultValue = "10") int limit) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        List<Map<String, Object>> result = energyService.getFrequentAlarmDevices(startTime, endTime, limit);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", result);
+        response.put("total", result.size());
+        return response;
+    }
+
+    /**
+     * 设备类型告警分布API - 修改为可选参数
+     */
+    @GetMapping("/device/typeDistribution")
+    @ResponseBody
+    public Map<String, Object> getAlarmDeviceTypeDistribution(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        List<Map<String, Object>> result = energyService.getAlarmDeviceTypeDistribution(startTime, endTime);
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", result);
+        response.put("total", result.size());
+        return response;
+    }
+
+    /**
+     * 设备详细告警信息API - 修改为可选参数
+     */
+    @GetMapping("/device/detail/{deviceId}")
+    @ResponseBody
+    public Map<String, Object> getDeviceAlarmDetails(
+            @PathVariable String deviceId,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime) {
+        
+        // 设置默认时间范围（最近30天）
+        if (startTime == null || endTime == null) {
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(30);
+            startTime = startDate.toString();
+            endTime = endDate.toString();
+        }
+        
+        return energyService.getDeviceAlarmDetails(deviceId, startTime, endTime);
     }
 }

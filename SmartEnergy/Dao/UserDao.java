@@ -38,5 +38,11 @@ public interface UserDao {
     
     @Update("UPDATE `用户表` SET `登录失败次数` = #{count}, `账号锁定时间` = #{lockTime} WHERE `用户ID` = #{userId}")
     int updateLoginFailure(@Param("userId") String userId, @Param("count") int count, @Param("lockTime") java.util.Date lockTime);
+
+    @Select("SELECT `用户ID` FROM `用户表` WHERE `角色` = '运维人员' LIMIT 1")
+    String getRandomMaintenancePersonId();
+    
+    @Select("SELECT `用户ID` FROM `用户表` WHERE `角色` = '运维人员'")
+    List<String> getMaintenancePersonIds();
 }
 

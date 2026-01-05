@@ -16,5 +16,6 @@ public interface IUserService {
     int updateUser(User user);
     int deleteUser(String userId);
     boolean validateUser(String userId, String password);
+    List<String> getMaintenancePersonIds(); // 用于自动派单获取运维人员ID
 }
 
