@@ -408,41 +408,44 @@ public class EnergyServiceImpl implements IEnergyService {
     @Override
     public Map<String, Object> getDashboardSummary() {
         Map<String, Object> summary = new HashMap<>();
-        
+
         try {
             // 告警统计
             List<Alarm> unhandledAlarms = getAlarmsByStatus("未处理");
             List<Alarm> highAlarms = getHighLevelUnhandledAlarms();
-            
-            summary.put("unhandledAlarmCount", unhandledAlarms.size());
-            summary.put("highLevelAlarmCount", highAlarms.size());
-            
+
+            summary.put("未处理告警数", unhandledAlarms.size());
+            summary.put("高等级告警数", highAlarms.size());
+
             // 设备状态统计
             Map<String, Object> pvSummary = getPvDeviceSummary();
-            summary.put("pvDeviceSummary", pvSummary);
-            
+            if (pvSummary != null && !pvSummary.isEmpty()) {
+                for (Map.Entry<String, Object> entry : pvSummary.entrySet()) {
+                    summary.put("光伏" + entry.getKey(), entry.getValue());
+                }
+            }
+
             // 能耗概况（示例数据）
-            summary.put("totalEnergyConsumption", 12540.5); // 总能耗（kWh）
-            summary.put("energyCost", 8768.35); // 能源成本（元）
-            summary.put("energySaving", 12.5); // 节能率（%）
-            
+            summary.put("总能耗", "12540.5 kWh"); // 总能耗（kWh）
+            summary.put("能源成本", "¥8768.35"); // 能源成本（元）
+            summary.put("节能率", "12.5%"); // 节能率（%）
+
             // 系统状态
-            summary.put("systemStatus", "运行正常");
-            summary.put("lastUpdateTime", new java.util.Date());
-            
+            summary.put("系统状态", "运行正常");
+            summary.put("数据更新时间", new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+
         } catch (Exception e) {
             e.printStackTrace();
             // 设置默认值
-            summary.put("unhandledAlarmCount", 0);
-            summary.put("highLevelAlarmCount", 0);
-            summary.put("pvDeviceSummary", new HashMap<>());
-            summary.put("totalEnergyConsumption", 0);
-            summary.put("energyCost", 0);
-            summary.put("energySaving", 0);
-            summary.put("systemStatus", "数据异常");
-            summary.put("lastUpdateTime", new java.util.Date());
+            summary.put("未处理告警数", 0);
+            summary.put("高等级告警数", 0);
+            summary.put("总能耗", "0 kWh");
+            summary.put("能源成本", "¥0.00");
+            summary.put("节能率", "0%");
+            summary.put("系统状态", "数据异常");
+            summary.put("数据更新时间", new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
         }
-        
+
         return summary;
     }
     

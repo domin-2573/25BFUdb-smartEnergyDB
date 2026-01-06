@@ -36,7 +36,7 @@
                         <tr>
                             <td>${order.workOrderId}</td>
                             <td>${order.alarmId}</td>
-                            <td>${order.personId}</td>
+                            <td>${order.maintenancePersonId}</td>
                             <td>${order.dispatchTime}</td>
                             <td><span class="badge bg-info">${order.reviewStatus}</span></td>
                             <td>${order.reviewStatus}</td>

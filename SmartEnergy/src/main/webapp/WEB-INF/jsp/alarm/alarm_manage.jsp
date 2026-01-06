@@ -35,15 +35,22 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-white">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/SmartEnergy/admin/dashboard">
-                <i class="bi bi-lightning-charge-fill text-primary"></i> SmartEnergy
+            <a class="navbar-brand" href="/SmartEnergy/alarm/manage">
+                <i class="bi bi-bell-fill text-danger"></i> SmartEnergy 告警中心
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/SmartEnergy/admin/dashboard">仪表板</a>
-                <a class="nav-link active" href="/SmartEnergy/alarm/manage">告警管理</a>
-                <a class="nav-link" href="/SmartEnergy/alarm/statistics/page">告警统计</a>
-                <a class="nav-link" href="/SmartEnergy/alarm/device/relation/page">设备关联</a>
-                <a class="nav-link" href="/SmartEnergy/auth/logout">退出</a>
+                <a class="nav-link active" href="/SmartEnergy/alarm/manage">
+                    <i class="bi bi-house-door"></i> 告警管理
+                </a>
+                <a class="nav-link" href="/SmartEnergy/alarm/statistics/page">
+                    <i class="bi bi-bar-chart"></i> 告警统计
+                </a>
+                <a class="nav-link" href="/SmartEnergy/alarm/device/relation/page">
+                    <i class="bi bi-diagram-3"></i> 设备关联
+                </a>
+                <a class="nav-link" href="/SmartEnergy/auth/logout">
+                    <i class="bi bi-box-arrow-right"></i> 退出
+                </a>
             </div>
         </div>
     </nav>

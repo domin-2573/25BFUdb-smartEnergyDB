@@ -22,11 +22,28 @@ public class MaintenanceController {
     @Autowired
     private IMaintenanceService maintenanceService;
     
-    // 新增：注入用户服务（用于查询运维人员）
     @Autowired
     private IUserService userService;
     
-    // ========== 原有运维工单管理方法（保持不变） ==========
+    // ========== 首页设备台账统计API ==========
+    @GetMapping("/equipment/stats")
+    @ResponseBody
+    public Map<String, Object> getEquipmentStatistics() {
+        return maintenanceService.getEquipmentStatistics();
+    }
+    
+    // ========== 设备台账列表页面 ==========
+    @GetMapping("/equipment/list")
+    public String equipmentListPage(Model model) {
+        List<EquipmentLedger> ledgerList = maintenanceService.getAllEquipmentLedgers();
+        Map<String, Object> stats = maintenanceService.getEquipmentStatistics();
+        
+        model.addAttribute("ledgerList", ledgerList);
+        model.addAttribute("stats", stats);
+        return "maintenance/equipment_list";
+    }
+    
+    // ========== 原有运维工单管理方法 ==========
     @GetMapping("/workorder/list")
     public String workOrderList(
             @RequestParam(required = false) String personId,
@@ -59,7 +76,7 @@ public class MaintenanceController {
         return result > 0 ? "success" : "failed";
     }
     
-    // ========== 原有设备台账管理方法（保持不变） ==========
+    // ========== 原有设备台账管理方法（如果需要保留） ==========
     @GetMapping("/ledger/list")
     public String equipmentLedgerList(
             @RequestParam(required = false) String equipmentType,
@@ -87,22 +104,16 @@ public class MaintenanceController {
         return result > 0 ? "success" : "failed";
     }
     
-    // ========== 新增：高等级告警派单相关方法 ==========
-    /**
-     * 高等级告警页面（携带运维人员列表）
-     */
+    // ========== 高等级告警派单相关方法 ==========
     @GetMapping("/highLevelDispatch")
     public String highLevelDispatchPage(Model model) {
-        List<User> maintenanceUsers = userService.getUsersByRole("运维人员"); // 查询所有运维人员
+        List<User> maintenanceUsers = userService.getUsersByRole("运维人员");
         List<MaintenanceWorkOrder> workOrderList = maintenanceService.getMaintenanceWorkOrdersByReviewStatus("未通过");
         model.addAttribute("maintenanceUsers", maintenanceUsers);
-        model.addAttribute("workOrderList", workOrderList); // 保留原有工单列表数据
+        model.addAttribute("workOrderList", workOrderList);
         return "alarm/high_level_alarms";
     }
     
-    /**
-     * 手动派单接口
-     */
     @PostMapping("/dispatch")
     @ResponseBody
     public Map<String, Object> manualDispatch(@RequestParam String alarmId, 

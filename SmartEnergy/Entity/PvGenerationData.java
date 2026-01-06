@@ -1,130 +1,71 @@
 package Demo.Entity;
 
 import java.util.Date;
+import java.math.BigDecimal;
 
 /**
- * 光伏发电数据表对应的实体类
+ * 光伏发电数据表
  */
 public class PvGenerationData {
-    // 数据编号（主键）
+    /** 数据编号 - VARCHAR(30) 主键（如 SD-GF-20250620-001），非空 */
     private String dataId;
-    // 设备编号（关联光伏设备表）
+    
+    /** 设备编号 - VARCHAR(20) 外键（关联光伏设备信息表。设备编号），非空 */
     private String deviceId;
-    // 并网点编号（关联并网点表）
-    private String gridConnectionId;
-    // 采集时间
-    private Date collectionTime;
-    // 发电量（单位：kWh）
-    private Double powerGeneration;
-    // 上网电量（单位：kWh）
-    private Double gridPower;
-    // 自用电量（单位：kWh）
-    private Double selfUsePower;
-    // 逆变器效率（%）
-    private Double inverterEfficiency;
-    // 汇流箱组串电压（单位：V）
-    private Double stringVoltage;
-    // 组串电流（单位：A）
-    private Double stringCurrent;
-
-    // 无参构造函数
-    public PvGenerationData() {
-    }
-
-    // 全参构造函数
-    public PvGenerationData(String dataId, String deviceId, String gridConnectionId, Date collectionTime,
-                            Double powerGeneration, Double gridPower, Double selfUsePower,
-                            Double inverterEfficiency, Double stringVoltage, Double stringCurrent) {
-        this.dataId = dataId;
-        this.deviceId = deviceId;
-        this.gridConnectionId = gridConnectionId;
-        this.collectionTime = collectionTime;
-        this.powerGeneration = powerGeneration;
-        this.gridPower = gridPower;
-        this.selfUsePower = selfUsePower;
-        this.inverterEfficiency = inverterEfficiency;
-        this.stringVoltage = stringVoltage;
-        this.stringCurrent = stringCurrent;
-    }
-
-    // Getter & Setter
-    public String getDataId() {
-        return dataId;
-    }
-
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public String getGridConnectionId() {
-        return gridConnectionId;
-    }
-
-    public void setGridConnectionId(String gridConnectionId) {
-        this.gridConnectionId = gridConnectionId;
-    }
-
-    public Date getCollectionTime() {
-        return collectionTime;
-    }
-
-    public void setCollectionTime(Date collectionTime) {
-        this.collectionTime = collectionTime;
-    }
-
-    public Double getPowerGeneration() {
-        return powerGeneration;
-    }
-
-    public void setPowerGeneration(Double powerGeneration) {
-        this.powerGeneration = powerGeneration;
-    }
-
-    public Double getGridPower() {
-        return gridPower;
-    }
-
-    public void setGridPower(Double gridPower) {
-        this.gridPower = gridPower;
-    }
-
-    public Double getSelfUsePower() {
-        return selfUsePower;
-    }
-
-    public void setSelfUsePower(Double selfUsePower) {
-        this.selfUsePower = selfUsePower;
-    }
-
-    public Double getInverterEfficiency() {
-        return inverterEfficiency;
-    }
-
-    public void setInverterEfficiency(Double inverterEfficiency) {
-        this.inverterEfficiency = inverterEfficiency;
-    }
-
-    public Double getStringVoltage() {
-        return stringVoltage;
-    }
-
-    public void setStringVoltage(Double stringVoltage) {
-        this.stringVoltage = stringVoltage;
-    }
-
-    public Double getStringCurrent() {
-        return stringCurrent;
-    }
-
-    public void setStringCurrent(Double stringCurrent) {
-        this.stringCurrent = stringCurrent;
-    }
+    
+    /** 并网点编号 - VARCHAR(20) 非空 */
+    private String gridPointId;
+    
+    /** 采集时间 - DATETIME 非空 */
+    private Date collectTime;
+    
+    /** 发电量 - DECIMAL(18,2) 非空 */
+    private BigDecimal generation;
+    
+    /** 上网电量 - DECIMAL(18,2) 非空 */
+    private BigDecimal gridPower;
+    
+    /** 自用电量 - DECIMAL(18,2) 非空 */
+    private BigDecimal selfConsumption;
+    
+    /** 汇流箱组串电压（V） - DECIMAL(10,2) 非空 */
+    private BigDecimal stringVoltage;
+    
+    /** 组串电流（A） - DECIMAL(10,2) 非空 */
+    private BigDecimal stringCurrent;
+    
+    /** 逆变器效率 - DECIMAL(5,2) 非空 */
+    private BigDecimal inverterEfficiency;
+    
+    // getters and setters
+    public String getDataId() { return dataId; }
+    public void setDataId(String dataId) { this.dataId = dataId; }
+    
+    public String getDeviceId() { return deviceId; }
+    public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
+    
+    public String getGridPointId() { return gridPointId; }
+    public void setGridPointId(String gridPointId) { this.gridPointId = gridPointId; }
+    
+    public Date getCollectTime() { return collectTime; }
+    public void setCollectTime(Date collectTime) { this.collectTime = collectTime; }
+    
+    public BigDecimal getGeneration() { return generation; }
+    public void setGeneration(BigDecimal generation) { this.generation = generation; }
+    
+    public BigDecimal getGridPower() { return gridPower; }
+    public void setGridPower(BigDecimal gridPower) { this.gridPower = gridPower; }
+    
+    public BigDecimal getSelfConsumption() { return selfConsumption; }
+    public void setSelfConsumption(BigDecimal selfConsumption) { this.selfConsumption = selfConsumption; }
+    
+    public BigDecimal getStringVoltage() { return stringVoltage; }
+    public void setStringVoltage(BigDecimal stringVoltage) { this.stringVoltage = stringVoltage; }
+    
+    public BigDecimal getStringCurrent() { return stringCurrent; }
+    public void setStringCurrent(BigDecimal stringCurrent) { this.stringCurrent = stringCurrent; }
+    
+    public BigDecimal getInverterEfficiency() { return inverterEfficiency; }
+    public void setInverterEfficiency(BigDecimal inverterEfficiency) { this.inverterEfficiency = inverterEfficiency; }
 }
+

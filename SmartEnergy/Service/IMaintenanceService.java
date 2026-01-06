@@ -31,4 +31,10 @@ public interface IMaintenanceService {
     
     // 新增：高等级告警手动派单方法
     Map<String, Object> manualDispatchHighLevelAlarm(String alarmId, String maintenancePersonId);
+    
+    // 新增：获取所有设备台账
+    List<EquipmentLedger> getAllEquipmentLedgers();
+    
+    // 新增：设备台账统计
+    Map<String, Object> getEquipmentStatistics();
 }

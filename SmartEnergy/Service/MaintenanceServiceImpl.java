@@ -182,5 +182,22 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
             return null;
         }
     }
+    
+ // 新增：获取所有设备台账
+    @Override
+    public List<EquipmentLedger> getAllEquipmentLedgers() {
+        return equipmentLedgerDao.getAllEquipmentLedgers();
+    }
+    
+    // 新增：设备台账统计
+    @Override
+    public Map<String, Object> getEquipmentStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalCount", equipmentLedgerDao.getEquipmentCount());
+        stats.put("scrappedCount", equipmentLedgerDao.getScrappedEquipmentCount());
+        stats.put("expiringWarrantyCount", equipmentLedgerDao.getExpiringWarrantyCount());
+        stats.put("normalCount", equipmentLedgerDao.getEquipmentCount() - equipmentLedgerDao.getScrappedEquipmentCount());
+        return stats;
+    }
 }
 

@@ -10,28 +10,245 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        body { background: #f5f7fa; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            font-family: 'SF Pro Display', 'Microsoft YaHei', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 122, 255, 0.3);
+        }
+
+        .navbar-brand {
+            color: #007AFF !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+            background: linear-gradient(135deg, #5856D6 0%, #007AFF 100%);
+        }
+
+        .btn-outline-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+        }
+
+        .container {
+            padding: 2rem;
+        }
+
+        h2 {
+            color: #007AFF;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(0, 122, 255, 0.3);
+        }
+
         .filter-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
+
+        .form-label {
+            color: #d1d5db;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select, .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #007AFF;
+            box-shadow: 0 0 20px rgba(0, 122, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .form-select option {
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+
         .chart-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        .trend-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
+
+        .chart-card h5 {
+            color: #007AFF;
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .table {
+            color: #ffffff;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: rgba(0, 122, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 122, 255, 0.3);
+            color: #007AFF;
+            font-weight: 600;
+            padding: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             font-size: 0.85rem;
         }
-        .trend-up { background: #fee2e2; color: #dc2626; }
-        .trend-down { background: #dcfce7; color: #16a34a; }
+
+        .table tbody td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            color: #d1d5db;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, #007AFF, #5856D6) !important;
+        }
+
+        .trend-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trend-up {
+            background: rgba(255, 59, 48, 0.1);
+            color: #FF3B30;
+            border-color: rgba(255, 59, 48, 0.3);
+        }
+
+        .trend-down {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34C759;
+            border-color: rgba(52, 199, 89, 0.3);
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #d1d5db;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-info {
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+
+        .alert-info .bi {
+            color: #007AFF;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 122, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 122, 255, 0.7);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .filter-card, .chart-card {
+                padding: 1.5rem;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>

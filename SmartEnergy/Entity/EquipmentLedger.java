@@ -12,7 +12,7 @@ public class EquipmentLedger {
     /** 设备名称 - varchar(50) NOT NULL（非空） */
     private String equipmentName;
     
-    /** 设备类型 - varchar(10) ENUM('变压器', '水表', '逆变器')，NOT NULL（非空） */
+    /** 设备类型 - varchar(20) NOT NULL（非空） */
     private String equipmentType;
     
     /** 型号规格 - varchar(50) */
@@ -21,17 +21,23 @@ public class EquipmentLedger {
     /** 安装时间 - datetime NOT NULL（非空） */
     private Date installTime;
     
-    /** 质保期（年） - int */
-    private Integer warrantyPeriod;
+    /** 质保期_年 - int */
+    private Integer warrantyPeriodYears;
     
-    /** 维修记录 - varchar(20)（关联工单编号） */
+    /** 维修记录 - varchar(20) */
     private String maintenanceRecord;
     
-    /** 校准记录 - varchar(20) */
+    /** 校准记录 - varchar(50) */
     private String calibrationRecord;
     
-    /** 报废状态 - varchar(10) ENUM('正常使用', '已报废') */
+    /** 报废状态 - varchar(10) */
     private String scrapStatus;
+    
+    /** 创建时间 - datetime */
+    private Date createTime;
+    
+    /** 更新时间 - datetime */
+    private Date updateTime;
     
     // getters and setters
     public String getLedgerId() { return ledgerId; }
@@ -49,8 +55,8 @@ public class EquipmentLedger {
     public Date getInstallTime() { return installTime; }
     public void setInstallTime(Date installTime) { this.installTime = installTime; }
     
-    public Integer getWarrantyPeriod() { return warrantyPeriod; }
-    public void setWarrantyPeriod(Integer warrantyPeriod) { this.warrantyPeriod = warrantyPeriod; }
+    public Integer getWarrantyPeriodYears() { return warrantyPeriodYears; }
+    public void setWarrantyPeriodYears(Integer warrantyPeriodYears) { this.warrantyPeriodYears = warrantyPeriodYears; }
     
     public String getMaintenanceRecord() { return maintenanceRecord; }
     public void setMaintenanceRecord(String maintenanceRecord) { this.maintenanceRecord = maintenanceRecord; }
@@ -60,5 +66,10 @@ public class EquipmentLedger {
     
     public String getScrapStatus() { return scrapStatus; }
     public void setScrapStatus(String scrapStatus) { this.scrapStatus = scrapStatus; }
+    
+    public Date getCreateTime() { return createTime; }
+    public void setCreateTime(Date createTime) { this.createTime = createTime; }
+    
+    public Date getUpdateTime() { return updateTime; }
+    public void setUpdateTime(Date updateTime) { this.updateTime = updateTime; }
 }
-

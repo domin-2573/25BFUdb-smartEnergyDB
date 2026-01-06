@@ -251,6 +251,9 @@
                         <a href="/SmartEnergy/dashboard/trend" class="btn btn-outline-success">
                             <i class="bi bi-graph-up"></i> 历史趋势分析
                         </a>
+                        <a href="/SmartEnergy/maintenance/equipment/list" class="btn btn-primary">
+				            <i class="bi bi-box-seam"></i> 进入设备台账
+				        </a>
                     </div>
                 </div>
             </div>
